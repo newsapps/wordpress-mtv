@@ -11,7 +11,8 @@ use mtv\models\Model,
     mtv\models\ModelParseException,
     mtv\models\ModelNotFound,
     WPException,
-    JsonableException;
+    JsonableException,
+    WP_Query;
 
 /**
  * Wordpress models
@@ -115,25 +116,6 @@ class Post extends Model {
                 break;
         }
 
-        # Attach source post for reblogged posts
-        # TODO: Refactor into chicagonow specific stuff
-        if (!empty($ret['post_meta']['_source_postid'])) {
-            try {
-                $sourcepost =& PostCollection::get(array(
-                    'id'     => $ret['post_meta']['_source_postid'],
-                    'blogid' => $ret['post_meta']['_source_blogid']
-                ));
-                if ( $sourcepost->post_status === "publish" )
-                    $ret['source_post'] =& $sourcepost;
-                else
-                    throw new ModelParseException('ReBlog source post is not public');
-            } catch(ModelNotFound $e) {
-                # Can't find orignal, skip it for now
-                # TODO: delete or unpublish reblog post
-                throw new ModelParseException('ReBlog source post is gone');
-            }
-        }
-
         return $ret;
     }
 }
@@ -141,16 +123,19 @@ class Post extends Model {
 class PostCollection extends Collection {
     public static $model = 'mtv\wp\models\Post';
 
+    public $wp_query;
+
     public static function filter( $kwargs ) {
         global $post;
         $tmp_post = $post;
 
-        $query = new \WP_Query( $kwargs );
-
-        $query->get_posts();
-
         $ret = new PostCollection();
-        foreach( $query->posts as $post ) {
+
+        $ret->query = new WP_Query( $kwargs );
+
+        $ret->query->get_posts();
+
+        foreach( $ret->query->posts as $post ) {
             $p = new Post();
             try {
                 $p->reload($post);

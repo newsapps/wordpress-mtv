@@ -84,21 +84,6 @@ add_action('wp_ajax_mtv', $handle_ajax);
 add_action('wp_ajax_nopriv_mtv', $handle_ajax);
 
 /**
- * generate_rewrite_rules
- * Run immediately after WordPress generates it's rewrite rules. We'll replace all
- * the rules with one of ours. Our rule will route all requests into our url resolver.
- * We set this to run first so plugins can still add their own rules.
- **/
-add_action( 'generate_rewrite_rules', function( $wp_rewrite ) {
-    // setup our hijack rule
-    $newrules = array();
-    $newrules['(.*)'] = 'index.php?path=$matches[1]';
-
-    // We're feeling adventurous, override wordpress' processing with ours
-    $wp_rewrite->rules = $newrules;
-}, 1, 1);
-
-/**
  * Request handling
  **/
 add_filter( 'query_vars', function( $vars ) {
@@ -107,54 +92,79 @@ add_filter( 'query_vars', function( $vars ) {
     return $vars;
 } );
 
-/**
- * redirect_canonical
- * Correct opinionated wordpress redirects
- **/
-add_filter('redirect_canonical', function($redirect_url, $requested_url) {
-    # Don't add trailing slashes to files.
+add_action( 'init', function() {
 
-    # if $redirect_url ends in '/' then
-    if ( substr($redirect_url, -1) ) {
-        $ext = pathinfo($requested_url,PATHINFO_EXTENSION);
-    #   if $requested_url ends in '.xml' or '.html' etc. then
-        if ( in_array($ext, array('xml', 'html')) )
-            return false;
-    }
+    /**
+     * Is our chosen theme an MTV theme?
+     * If not, we don't want to hijack rewrite rules and template selection
+     **/
+    if ( ! file_exists( get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) &&
+         ! file_exists( get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
+        return; // nope
 
-}, 10, 2);
+    /**
+     * generate_rewrite_rules
+     * Run immediately after WordPress generates it's rewrite rules. We'll replace all
+     * the rules with one of ours. Our rule will route all requests into our url resolver.
+     * We set this to run first so plugins can still add their own rules.
+     **/
+    add_action( 'generate_rewrite_rules', function( $wp_rewrite ) {
+        // setup our hijack rule
+        $newrules = array();
+        $newrules['(.*)'] = 'index.php?path=$matches[1]';
 
-/**
- * Reroute the rest of the application through our url resolver
- **/
-add_action( 'template_redirect', function() {
-    // Where we figure out which view to use on the front end
-    global $wp_query;
+        // We're feeling adventurous, override wordpress' processing with ours
+        $wp_rewrite->rules = $newrules;
+    }, 1, 1);
 
-    // check for the path queryvar. That means we're on!
-    if ( !($wp_query->query_vars['path'] === NULL) ) { // will work for the root path
-        // reset wp_query's is_whatever flags and posts
-        shortcuts\reset_wp_query();
+    /**
+     * redirect_canonical
+     * Correct opinionated wordpress redirects
+     **/
+    add_filter('redirect_canonical', function($redirect_url, $requested_url) {
+        # Don't add trailing slashes to files.
 
-        // get the url patterns for the current theme
-        if ( file_exists( get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
-            include get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php';
-        else if ( file_exists( get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
-            include get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php';
-        else
-            throw new Exception("Can't find a urls.php file in your theme");
+        # if $redirect_url ends in '/' then
+        if ( substr($redirect_url, -1) ) {
+            $ext = pathinfo($requested_url,PATHINFO_EXTENSION);
+        #   if $requested_url ends in '.xml' or '.html' etc. then
+            if ( in_array($ext, array('xml', 'html')) )
+                return false;
+        }
 
-        // whatever is in the $apps global is what we're going to load
-        global $apps;
+    }, 10, 2);
 
-        // run MTV
-        mtv\run( array(
-            'url' => $wp_query->query_vars['path'],
-            'url_patterns' => $url_patterns,
-            'apps' => $apps ) );
+    /**
+     * Reroute the rest of the application through our url resolver
+     **/
+    add_action( 'template_redirect', function() {
+        // Where we figure out which view to use on the front end
+        global $wp_query;
 
-        // That's all folks
-        exit;
-    }
+        // check for the path queryvar. That means we're on!
+        if ( !($wp_query->query_vars['path'] === NULL) ) { // will work for the root path
+            // reset wp_query's is_whatever flags and posts
+            shortcuts\reset_wp_query();
+
+            // get the url patterns for the current theme
+            if ( file_exists( get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
+                include get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php';
+            else if ( file_exists( get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
+                include get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php';
+            else
+                throw new Exception("Can't find a urls.php file in your theme");
+
+            // whatever is in the $apps global is what we're going to load
+            global $apps;
+
+            // run MTV
+            mtv\run( array(
+                'url' => $wp_query->query_vars['path'],
+                'url_patterns' => $url_patterns,
+                'apps' => $apps ) );
+
+            // That's all folks
+            exit;
+        }
+    });
 });
-

@@ -29,15 +29,23 @@ function urlresolver( $kwargs ) {
 
     try {
 
-        if ( resolve( $url, $url_patterns ) ) return true;
-        else
+        // Start buffering so we can toss output in case we get an exception
+        ob_start();
+
+        if ( resolve( $url, $url_patterns ) ) {
+            // everything worked! Flush the buffer and return
+            ob_end_flush();
+            return true;
+        } else
             // We didn't find any matching patterns :( So... 404!
             throw new Http404;
 
     } catch (HttpException $e) {
+        ob_end_clean();
         // Our view threw an HttpException, so display it
         $e->display();
     } catch (Exception $e) {
+        ob_end_clean();
         // Somebody threw some sort of exception, so display 500
         $http_ex = new Http500($e->getMessage(), $e->getCode());
         $http_ex->display();
@@ -51,7 +59,12 @@ function resolve($url, $url_patterns) {
     foreach ($url_patterns as $pattern => $view) {
         if ( is_array( $view ) ) return resolve($url, $view);
         else if ( preg_match($pattern, $url, $matches) > 0 ) {
-            // we found a match! pass the match array to the view function
+            // we found a match!
+
+            // Check to see if the function exists
+            if ( ! function_exists( $view ) ) throw new BadFunctionCallException("Can't find view function: $view");
+
+            // pass the match array to the view function
             call_user_func( $view, array_slice($matches, 1) );
             return true; // We're all done, so return
         }
@@ -109,7 +122,18 @@ class Http404 extends HttpException {
         $wp_query->is_404 = true;
         
         shortcuts\set_query_flags('page');
-        shortcuts\display_template('404.html');
+        shortcuts\display_template(
+            '404.html',
+            array(
+                'message' => $this->message,
+                'data'    => $this->error_data,
+                'code'    => $this->code,
+                'globals' => $GLOBALS,
+                'post'    => $_POST,
+                'get'     => $_GET,
+                'server'  => $_SERVER
+            )
+        );
         exit;
     }
 }
@@ -119,7 +143,18 @@ class Http500 extends HttpException {
 
     public function display_message() {
         shortcuts\set_query_flags('page');
-        shortcuts\display_template('500.html');
+        shortcuts\display_template(
+            '500.html',
+            array(
+                'message' => $this->message,
+                'data'    => $this->error_data,
+                'code'    => $this->code,
+                'globals' => $GLOBALS,
+                'post'    => $_POST,
+                'get'     => $_GET,
+                'server'  => $_SERVER
+            )
+        );
         exit;
     }
 }
