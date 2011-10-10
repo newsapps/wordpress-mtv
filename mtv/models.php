@@ -11,6 +11,16 @@ namespace mtv\models;
 use Iterator, ArrayAccess, Countable, Exception, LogicException, BadMethodCallException, JsonableException;
 use mtv\shortcuts;
 
+/**
+ * Model class
+ *
+ * You can access the fields on a model object in the following ways:
+ *   $post->field_name;
+ *   $post->attributes['field_name'];
+ *
+ * If you need an array of the fields on a model object, do this:
+ *   $data = $post->attributes;
+ **/
 class Model {
     // Where the model's data is stored
     public $attributes           = array();

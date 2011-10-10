@@ -17,6 +17,53 @@ use mtv\models\Model,
 /**
  * Wordpress models
  **/
+
+
+/**
+ * Post Model
+ *
+ * Core post fields directly from WordPress:
+ *   id             // ID of the post
+ *   post_author    // ID of the post author
+ *   post_date      // timestamp in local time
+ *   post_date_gmt  // timestamp in gmt time
+ *   post_content   // Full body of the post
+ *   post_title     // title of the post
+ *   post_excerpt   // excerpt field of the post, caption if attachment
+ *   post_status    // post status: publish, new, pending, draft, auto-draft, future, private, inherit, trash
+ *   comment_status // comment status: open, closed
+ *   ping_status    // ping/trackback status
+ *   post_password  // password of the post
+ *   post_name      // post slug, string to use in the URL
+ *   to_ping        // to ping ??
+ *   pinged         // pinged ??
+ *   post_modified  // timestamp in local time
+ *   post_modified_gmt // timestatmp in gmt tim
+ *   post_content_filtered // filtered content ??
+ *   post_parent    // id of the parent post, if attachment, id of the post that uses this image
+ *   guid           // global unique id of the post
+ *   menu_order     // menu order
+ *   post_type      // type of post: post, page, attachment, or custom string
+ *   post_mime_type // mime type for attachment posts
+ *   comment_count  // number of comments
+ *   filter         // filter ??
+ *
+ * Special MTV fields:
+ *   post_meta      // an array containing all of the meta for this post
+ *   permalink      // permalink for this post, from WP get_permalink()
+ *   blogid         // id number of the blog this post lives on
+ *   post_format    // the post_format for this post
+ *   url            // attachments only, url of the original uploaded image or whatever
+ *   thumb_url      // attachments only, url of the thumbnail image, if thumbnails are enabled
+ *
+ * Post object functions
+ *   password_required()
+ *     Whether post requires password and correct password has been provided.
+ *   is_sticky()
+ *     Check if post is sticky.
+ *   post_class()
+ *     Retrieve the classes for the post div as an array.
+ **/
 class Post extends Model {
     public function __toString() {
         return $this->attributes['post_title'];
@@ -90,6 +137,7 @@ class Post extends Model {
         $ret =& parent::parse( $postdata );
 
         # Take only the fields we need, put them in a temp array
+        # TODO: current_blog may not be correct
         $ret['blogid']    = get_current_blog_id();
 
         # Fill up the meta attribute with post meta
@@ -112,11 +160,41 @@ class Post extends Model {
                 $content = get_the_content("more", 1);
 
                 $ret['post_format']  = get_post_format( $ret['id'] );
+                // TODO: permalink should be a method
                 $ret['permalink']    = get_permalink( $ret['id'] );
                 break;
         }
 
         return $ret;
+    }
+
+    public function password_required() {
+        if ( empty($this->post_password) )
+            return false;
+
+        if ( !isset($_COOKIE['wp-postpass_' . COOKIEHASH]) )
+            return true;
+
+        if ( $_COOKIE['wp-postpass_' . COOKIEHASH] != $this->post_password )
+            return true;
+
+        return false;
+    }
+
+    public function is_sticky() {
+        return is_sticky($this->id);
+    }
+
+    public function post_class( $class='' ) {
+        return get_post_class($class, $this->id);
+    }
+
+    public function the_content($more_link_text = null, $stripteaser = 0) {
+        global $post, $more, $page, $pages, $multipage, $preview;
+        $content = get_the_content($more_link_text, $stripteaser);
+        $content = apply_filters('the_content', $content);
+        $content = str_replace(']]>', ']]&gt;', $content);
+        return $content;
     }
 }
 
