@@ -154,14 +154,7 @@ class Post extends Model {
                 $ret['thumb_url'] = wp_get_attachment_thumb_url($ret['id']);
                 break;
             case 'post':
-                # wp_trim_excerpt needs a global post var
-                setup_postdata( $postdata );
-                $ret['post_excerpt'] = wp_trim_excerpt($ret['post_excerpt']);
-                $content = get_the_content("more", 1);
-
                 $ret['post_format']  = get_post_format( $ret['id'] );
-                // TODO: permalink should be a method
-                $ret['permalink']    = get_permalink( $ret['id'] );
                 break;
         }
 
@@ -189,12 +182,59 @@ class Post extends Model {
         return get_post_class($class, $this->id);
     }
 
-    public function the_content($more_link_text = null, $stripteaser = 0) {
-        global $post, $more, $page, $pages, $multipage, $preview;
-        $content = get_the_content($more_link_text, $stripteaser);
-        $content = apply_filters('the_content', $content);
-        $content = str_replace(']]>', ']]&gt;', $content);
-        return $content;
+    public function permalink() {
+        return get_permalink($this->id);
+    }
+
+    public function categories() {
+        return get_the_category($this->id);
+    }
+
+    public function tags() {
+        return get_the_tags($this->id);
+    }
+
+    public function make_excerpt($more_text = null) {
+        // Author inserted a <!--more--> tag
+        $parts = get_extended($this->post_content);
+        if (!empty($parts['extended'])) {
+            $ret = trim($parts['main']);
+
+            // Conditionally add a read more link and
+            // clean up punctuation and ellipsis at end of excerpt
+            $wc_excerpt = str_word_count($ret);
+            $wc_content = str_word_count($this->post_content);
+            if ($wc_excerpt < $wc_content) {
+                $ret = preg_replace('/([\.,;:!?\'"]{4,})$/', '...', $ret . '...');
+
+                if (!empty($more_text))
+                    $ret = $ret . ' <a href="'. $this->permalink .'" class="more-link">'. $more_text .'</a>';
+            }
+        }
+
+        // Excerpt is empty, so generate one
+        if (empty($parts['extended'])) {
+            $text = strip_shortcodes( $this->post_content );
+
+            $text = apply_filters('the_content', $text);
+            $text = str_replace(']]>', ']]&gt;', $text);
+            $text = strip_tags($text);
+            $excerpt_length = apply_filters('excerpt_length', 55);
+            $excerpt_more = apply_filters('excerpt_more', ' ' . '[...]');
+            $words = preg_split("/[\n\r\t ]+/", $text, $excerpt_length + 1, PREG_SPLIT_NO_EMPTY);
+            if ( count($words) > $excerpt_length ) {
+                array_pop($words);
+                $text = implode(' ', $words);
+                $text = $text . $excerpt_more;
+            } else {
+                $text = implode(' ', $words);
+            }
+            $ret = apply_filters('wp_trim_excerpt', $text, $raw_excerpt);
+        }
+
+        /* TODO: cache results of this function */
+
+        return $ret;
     }
 }
 

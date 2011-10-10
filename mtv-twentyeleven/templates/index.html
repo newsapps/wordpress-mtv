@@ -11,8 +11,6 @@
 
         {% for post in posts %}
             {# TODO: insert hidden 'the_post' magic here #}
-            {{ post.post_title }}
-
             {% if post.post_format %}
                 {% include '_content-' ~ post.post_format ~ '.html' %}
             {% else %}

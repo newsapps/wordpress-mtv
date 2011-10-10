@@ -27,7 +27,11 @@ function home( $request ) {
     shortcuts\display_template('index.html', $template_array);
 }
 
-function single( $request ) {}
+function single( $request ) {
+    
+    print "weeeee";
+    
+}
 
 function page( $request ) {}
 

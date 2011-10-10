@@ -24,7 +24,6 @@ use mtv\shortcuts;
 mtv\register_app( 'wp',
     dirname(__FILE__) . DIRECTORY_SEPARATOR . 'wp' );
 
-
 /**
  * Register javascript libraries
  **/

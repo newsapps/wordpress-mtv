@@ -51,21 +51,10 @@ $twig->addFunction('wp_login_url', new Twig_Function_Function('wp_login_url'));
 $twig->addFunction('is_user_logged_in', new Twig_Function_Function('is_user_logged_in'));
 
 // Author functions
-$twig->addFunction('the_author', new Twig_Function_Function('get_the_author'));
-$twig->addFunction('the_author_meta', new Twig_Function_Function('get_the_author_meta'));
 $twig->addFunction('get_avatar', new Twig_Function_Function('get_avatar', array('is_safe'=>array('html') )) );
 
 // Post functions
-$twig->addFunction('get_permalink', new Twig_Function_Function('get_permalink'));
-$twig->addFunction('get_post_type', new Twig_Function_Function('get_post_type'));
-$twig->addFunction('the_ID', new Twig_Function_Function('get_the_ID'));
-$twig->addFunction('the_title', new Twig_Function_Function('get_the_title'));
-$twig->addFunction('the_content', new Twig_Function_Function('get_the_content'));
-$twig->addFunction('the_excerpt', new Twig_Function_Function('get_the_excerpt'));
-$twig->addFunction('the_date', new Twig_Function_Function('get_the_date'));
-$twig->addFunction('the_permalink', new Twig_Function_Function('get_permalink'));
-$twig->addFunction('the_post_format', new Twig_Function_Function('get_post_format'));
-$twig->addFunction('the_post_meta', new Twig_Function_Function('mtv\wp\templatetags\functions\get_the_post_meta'));
+$twig->addFunction('get_edit_post_link', new Twig_Function_Function('get_edit_post_link'));
 $twig->addFunction('wpautop', new Twig_Function_Function('wpautop'));
 $twig->addFunction('comment_form', new Twig_Function_Function('mtv\wp\templatetags\functions\comment_form'));
 $twig->addFunction('wp_list_comments', new Twig_Function_Function('wp_list_comments'));

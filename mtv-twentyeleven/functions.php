@@ -48,7 +48,7 @@ if ( function_exists('mtv\register_app') )
 
 # Setup enabled apps
 global $apps;
-$apps = array('wp', 'twentyeleven_theme');
+$apps = array('twentyeleven_theme', 'wp');
 
 /**
  * Set the content width based on the theme's design and stylesheet.
