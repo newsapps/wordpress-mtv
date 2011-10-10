@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!--[if IE 6]>
+<html id="ie6" {{ language_attributes() }}>
+<![endif]-->
+<!--[if IE 7]>
+<html id="ie7" {{ language_attributes() }}>
+<![endif]-->
+<!--[if IE 8]>
+<html id="ie8" {{ language_attributes() }}>
+<![endif]-->
+<!--[if !(IE 6) | !(IE 7) | !(IE 8)  ]><!-->
+<html {{ language_attributes() }}>
+<!--<![endif]-->
+    <head>
+        <meta charset="{{ get_bloginfo( 'charset' ) }}" />
+        <meta name="viewport" content="width=device-width" />
+        <title>{% block title %}
+            {{ wp_title('|', true, 'right') }}{{ get_bloginfo('name') }}{% if get_bloginfo( 'description', 'display' ) and is_home() %}
+            | {{ get_bloginfo( 'description', 'display' ) }}{% endif %}
+            {% endblock %}</title>
+        <link rel="profile" href="http://gmpg.org/xfn/11" />
+        <link rel="stylesheet" type="text/css" media="all" href="{{ get_bloginfo( 'stylesheet_url' ) }}" />
+        <link rel="pingback" href="{{ get_bloginfo( 'pingback_url' ) }}" />
+        <!--[if lt IE 9]>
+        <script src="{{ get_template_directory_uri() }}/js/html5.js" type="text/javascript"></script>
+        <![endif]-->
+        {# TODO: put in functions.php - Come oooon
+        if ( is_singular() && get_option( 'thread_comments' ) )
+        wp_enqueue_script( 'comment-reply' );
+        #}
+
+        {{ wp_head() }}
+    </head>
+
+    <body {{ body_class() }}>
+        <div id="page" class="hfeed">
+            <header id="branding" role="banner">
+            <hgroup>
+            <h1 id="site-title"><span><a href="{{ get_home_url( '/' ) }}" title="{{ esc_attr( get_bloginfo( 'name', 'display' ) ) }}" rel="home">{{ get_bloginfo( 'name' ) }}</a></span></h1>
+            <h2 id="site-description">{{ get_bloginfo( 'description' ) }}</h2>
+            </hgroup>
+
+            {# TODO: create a template tag to do tricky header image stuff #}
+            {% if get_header_image() %}
+            <a href="{{ esc_url( get_home_url( '/' ) ) }}">
+                <img src="{{ get_header_image() }}">
+            </a>
+            {% endif %}
+
+            {% if get_header_textcolor() == 'blank' %}
+            <div class="only-search{% if get_header_image() %} with-image{% endif %}">
+                {% include '_searchform.html' %}
+            </div>
+            {% else %}
+                {% include '_searchform.html' %}
+            {% endif %}
+
+            <nav id="access" role="navigation">
+            <h3 class="assistive-text">{{ __( 'Main menu', 'twentyeleven' ) }}</h3>
+            <div class="skip-link"><a class="assistive-text" href="#content" title="{{ esc_attr( __( 'Skip to primary content', 'twentyeleven' ) ) }}">{{ __( 'Skip to primary content', 'twentyeleven' ) }}</a></div>
+            <div class="skip-link"><a class="assistive-text" href="#secondary" title="{{ esc_attr( __( 'Skip to secondary content', 'twentyeleven' ) ) }}">{{ __( 'Skip to secondary content', 'twentyeleven' ) }}</a></div>
+            {{ wp_nav_menu( { 'theme_location': 'primary' } ) }}
+            </nav><!-- #access -->
+            </header><!-- #branding -->
+
+            {{ get_header() }}
+
+            <div id="main">
+                {% block content %}{% endblock %}
+            </div><!-- #main -->
+
+            <footer id="colophon" role="contentinfo">
+            {% include '_sidebar-footer.html' %}
+
+            <div id="site-generator">
+                {{ do_action( 'twentyeleven_credits' ) }}
+                <a href="{{ esc_url( __( 'http://wordpress.org/', 'twentyeleven' ) ) }}"
+                   title="{{ esc_attr( 'Semantic Personal Publishing Platform', 'twentyeleven' ) }}"
+                   rel="generator">{{ __( 'Proudly powered by WordPress', 'twentyeleven' ) }}</a>
+            </div>
+            </footer><!-- #colophon -->
+        </div><!-- #page -->
+        {{ get_footer() }}
+        {{ wp_footer() }}
+
+    </body>
+</html>

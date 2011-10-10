@@ -1,0 +1,16 @@
+<nav id="{{ nav_id }}">
+    <h3 class="assistive-text">{{ __( 'Post navigation', 'twentyeleven' ) }}</h3>
+    <div class="nav-previous">
+        {% if page_num > 1 %}
+        <a href="page/{{ page_num - 1 }}/" {{ apply_filters( 'next_posts_link_attributes', '' ) }}>
+            {{ __( '<span class="meta-nav">&larr;</span> Older posts', 'twentyeleven' ) }}</a>
+        {% endif %}
+    </div>
+    <div class="nav-next">
+        {% if more_posts %}
+        <a href="page/{{ page_num + 1 }}/" {{ apply_filters( 'previous_posts_link_attributes', '' ) }}>
+            {{ __( 'Newer posts <span class="meta-nav">&rarr;</span>', 'twentyeleven' ) }}</a>
+        {% endif %}
+    </div>
+</nav><!-- #nav-above -->
+
