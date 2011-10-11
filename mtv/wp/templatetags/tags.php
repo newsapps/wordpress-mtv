@@ -1,5 +1,5 @@
 <?php
-namespace chicagonow\tags;
+namespace mtv\tags;
 
 # Allows use of:
 # {% while condition %} 

@@ -1,5 +1,5 @@
 <?php
-namespace chicagonow\filters;
+namespace mtv\filters;
 
 // Twig filters go here
 
