@@ -48,7 +48,26 @@ function single( $request ) {
     shortcuts\display_template('single.html', $template_array);
 }
 
-function page( $request ) {}
+function page( $request ) {
+    shortcuts\set_query_flags(array('page', 'single'));
+
+    $args = array('pagename' => $request['slug'],
+            'posts_per_page' => 1,
+            'post_status' => 'publish');
+    $collection = PostCollection::filter($args);
+
+    if (count($collection) != 1)
+        throw new Http404;
+
+    $p = $collection->models[0];
+
+    $template_array = array(
+        'post' => $p
+    );
+
+    shortcuts\display_template('page.html', $template_array);
+
+}
 
 function search( $request ) {}
 

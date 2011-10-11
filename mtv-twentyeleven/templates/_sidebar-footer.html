@@ -1,24 +1,17 @@
-{% if is_active_sidebar('sidebar-3') %}
 <div id="supplementary" {{ twentyeleven_footer_sidebar_class() }}>
+{% if is_active_sidebar('sidebar-3') %}
     <div id="first" class="widget-area" role="complementary">
         {{ dynamic_sidebar( 'sidebar-3' ) }}
     </div><!-- #first .widget-area -->
-</div>
 {% endif %}
-
 {% if is_active_sidebar('sidebar-4') %}
-<div id="supplementary" {{ twentyeleven_footer_sidebar_class() }}>
     <div id="second" class="widget-area" role="complementary">
         {{ dynamic_sidebar( 'sidebar-4' ) }}
     </div><!-- #second .widget-area -->
-</div>
 {% endif %}
-
 {% if is_active_sidebar('sidebar-5') %}
-<div id="supplementary" {{ twentyeleven_footer_sidebar_class() }}>
     <div id="third" class="widget-area" role="complementary">
         {{ dynamic_sidebar( 'sidebar-5' ) }}
     </div><!-- #third .widget-area -->
-</div>
 {% endif %}
-
+</div>

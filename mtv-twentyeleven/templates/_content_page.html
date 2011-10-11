@@ -1,0 +1,15 @@
+<article id="post-{{ post.id }}" class="{% for class in post.post_class %}{{ class }} {% endfor %}">
+    <header class="entry-header">
+        <h1 class="entry-title">{{ post.post_title|raw }}</h1>
+    </header><!-- .entry-header -->
+
+    <div class="entry-content">
+        {{ wpautop(post.post_content)|raw }}
+    </div><!-- .entry-content -->
+
+    <footer class="entry-meta">
+        {% if get_edit_post_link(post.id, '') %}
+            <span class="edit-link"><a href="{{ get_edit_post_link(post.id, '') }}">Edit</a></span>
+        {% endif %}
+    </footer><!-- .entry-meta -->
+</article><!-- #post-{{ post.id }} -->
