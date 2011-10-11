@@ -29,6 +29,8 @@ function home( $request ) {
 }
 
 function single( $request ) {
+    shortcuts\set_query_flags('single');
+
     $args = array('name' => $request['name'],
             'posts_per_page' => 1,
             'post_status' => 'publish');
@@ -37,10 +39,10 @@ function single( $request ) {
     if (count($collection) != 1)
         throw new Http404;
 
-    $post = $collection->models[0];
+    $p = $collection->models[0];
 
     $template_array = array(
-        'post' => $post
+        'post' => $p
     );
 
     shortcuts\display_template('single.html', $template_array);
