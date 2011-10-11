@@ -194,6 +194,20 @@ class Post extends Model {
         return get_the_tags($this->id);
     }
 
+    public function the_time($format = null) {
+        if ($format)
+            return mysql2date($format, $this->post_date);
+        else
+            return mysql2date(get_option('time_format'), $this->post_date);
+    }
+
+    public function the_date($format = null) {
+        if ($format)
+            return mysql2date($format, $this->post_date);
+        else
+            return mysql2date(get_option('date_format'), $this->post_date);
+    }
+
     public function make_excerpt($more_text = null) {
         // Author inserted a <!--more--> tag
         $parts = get_extended($this->post_content);

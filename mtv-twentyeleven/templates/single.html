@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div id="primary">
+    <div id="content" role="main">
+
+            <nav id="nav-single">
+                <h3 class="assistive-text">Post navigation</h3>
+                <span class="nav-previous">{% if previous_post %}<a href="{{ previous_post.permalink }}">{{ previous_post.post_title }}</a>{% endif %}</span>
+                <span class="nav-next">{% if next_post %}<a href="{{ next_post.permalink }}">{{ next_post.post_title }}</a>{% endif %}</span>
+            </nav><!-- #nav-single -->
+
+            {% include '_content_single.html' %}
+            {% include '_comments.html' %}
+
+    </div><!-- #content -->
+</div><!-- #primary -->
+
+{% include '_sidebar.html' %}
+
+{% endblock %}

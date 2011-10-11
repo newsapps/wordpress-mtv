@@ -52,6 +52,7 @@ $twig->addFunction('is_user_logged_in', new Twig_Function_Function('is_user_logg
 
 // Author functions
 $twig->addFunction('get_avatar', new Twig_Function_Function('get_avatar', array('is_safe'=>array('html') )) );
+$twig->addFunction('get_the_author_meta', new Twig_Function_Function('get_the_author_meta'));
 
 // Post functions
 $twig->addFunction('get_edit_post_link', new Twig_Function_Function('get_edit_post_link'));
@@ -60,6 +61,7 @@ $twig->addFunction('comment_form', new Twig_Function_Function('mtv\wp\templateta
 $twig->addFunction('wp_list_comments', new Twig_Function_Function('wp_list_comments'));
 $twig->addFunction('get_comments', new Twig_Function_Function('get_comments'));
 $twig->addFunction('mysql2date', new Twig_Function_Function('mysql2date'));
+$twig->addFunction('twentyeleven_posted_on', new Twig_Function_Function('twentyeleven_posted_on'));
 
 $twig->addFunction('formatted_date', new Twig_Function_Function('mtv\wp\templatetags\functions\formatted_date'));
 $twig->addFunction('relative_time', new Twig_Function_Function('mtv\wp\templatetags\functions\relative_time'));

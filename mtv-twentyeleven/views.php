@@ -2,6 +2,7 @@
 
 namespace twentyeleven\views;
 use mtv\wp\models\PostCollection,
+    mtv\http\Http404,
     mtv\shortcuts;
 
 function home( $request ) {
@@ -28,9 +29,21 @@ function home( $request ) {
 }
 
 function single( $request ) {
-    
-    print "weeeee";
-    
+    $args = array('name' => $request['name'],
+            'posts_per_page' => 1,
+            'post_status' => 'publish');
+    $collection = PostCollection::filter($args);
+
+    if (count($collection) != 1)
+        throw new Http404;
+
+    $post = $collection->models[0];
+
+    $template_array = array(
+        'post' => $post
+    );
+
+    shortcuts\display_template('single.html', $template_array);
 }
 
 function page( $request ) {}
