@@ -57,14 +57,10 @@ $twig->addFunction('get_the_author_meta', new Twig_Function_Function('get_the_au
 // Post functions
 $twig->addFunction('get_edit_post_link', new Twig_Function_Function('get_edit_post_link'));
 $twig->addFunction('wpautop', new Twig_Function_Function('wpautop'));
-$twig->addFunction('comment_form', new Twig_Function_Function('mtv\wp\templatetags\functions\comment_form'));
 $twig->addFunction('wp_list_comments', new Twig_Function_Function('wp_list_comments'));
 $twig->addFunction('get_comments', new Twig_Function_Function('get_comments'));
 $twig->addFunction('mysql2date', new Twig_Function_Function('mysql2date'));
 $twig->addFunction('twentyeleven_posted_on', new Twig_Function_Function('twentyeleven_posted_on'));
-
-$twig->addFunction('formatted_date', new Twig_Function_Function('mtv\wp\templatetags\functions\formatted_date'));
-$twig->addFunction('relative_time', new Twig_Function_Function('mtv\wp\templatetags\functions\relative_time'));
 
 // Comment form
 $twig->addFunction('comments_open', new Twig_Function_Function('comments_open'));
@@ -77,19 +73,13 @@ $twig->addFunction('comment_author', new Twig_Function_Function('comment_author'
 
 // Thumbnails
 $twig->addFunction('has_post_thumbnail', new Twig_Function_Function('has_post_thumbnail'));
-$twig->addFunction('has_post_thumbnail_caption', new Twig_Function_Function('mtv\wp\templatetags\functions\has_post_thumbnail_caption'));
 $twig->addFunction('get_the_post_thumbnail', new Twig_Function_Function('get_the_post_thumbnail'));
-$twig->addFunction('get_the_post_thumbnail_caption', new Twig_Function_Function('mtv\wp\templatetags\functions\get_the_post_thumbnail_caption'));
-$twig->addFunction('get_thumbnail_image_src', new Twig_Function_Function('mtv\wp\templatetags\functions\get_thumbnail_image_src'));
-$twig->addFunction('get_featured_image_src', new Twig_Function_Function('mtv\wp\templatetags\functions\get_featured_image_src'));
 
 // Galleries
 $twig->addFunction('get_attachment_url', new Twig_Function_Function('wp_get_attachment_url'));
 $twig->addFunction('get_attachment_thumb_url', new Twig_Function_Function('wp_get_attachment_thumb_url'));
 
 // Post attachments
-$twig->addFunction('has_featured_image', new Twig_Function_Function('chicagonow\shortcuts\has_featured_image'));
-$twig->addFunction('get_featured_image', new Twig_Function_Function('chicagonow\shortcuts\get_featured_image'));
 $twig->addFunction('wp_get_attachment_image_src', new Twig_Function_Function('wp_get_attachment_image_src'));
 
 // Theme functions
@@ -140,66 +130,11 @@ $twig->addFunction('dynamic_sidebar',
 $twig->addFunction('sidebar_is_populated', 
     new Twig_Function_Function('mtv\wp\templatetags\functions\sidebar_is_populated', array('is_safe'=>array('html')))
 );
+$twig->addFunction('this_year',
+    new Twig_Function_Function('mtv\wp\templatetags\functions\this_year'));
+$twig->addFunction('wp_nav_menu',
+    new Twig_Function_Function('wp_nav_menu', array('is_safe'=>array('html'))));
 $twig->addFunction('is_active_sidebar', new Twig_Function_Function('is_active_sidebar'));
-
-$twig->addFunction('this_year', new Twig_Function_Function('mtv\wp\templatetags\functions\this_year'));
-
-// Nav menus
-$twig->addFunction('wp_nav_menu', new Twig_Function_Function('wp_nav_menu', array('is_safe'=>array('html'))));
-$twig->addFunction('has_nav_menu', 
-    new Twig_Function_Function('mtv\wp\templatetags\functions\has_nav_menu', array('is_safe'=>array('html'))));
-
-function has_nav_menu() {
-    if (is_nav_menu('Blog Navigation')) {
-        $nav = wp_get_nav_menu_object('Blog Navigation');
-        $items = wp_get_nav_menu_items($nav->name);
-
-        if (count($items) > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-}
-
-function has_post_thumbnail_caption($post_id) {
-    $attachment = get_post( get_post_thumbnail_id($post_id) );
-    return (bool)$attachment->post_excerpt;
-}
-
-function get_the_post_thumbnail_caption($post_id) {
-    $attachment = get_post( get_post_thumbnail_id($post_id) );
-    return $attachment->post_excerpt;
-}
-
-function get_thumbnail_image_src($post_id = null, $size = 'post-thumbnail') {
-    $post_id = ( null === $post_id ) ? get_the_ID() : $post_id;
-    $post_thumbnail_id = get_post_thumbnail_id( $post_id );
-    $size = apply_filters( 'post_thumbnail_size', $size );
-
-    $imgsrc = wp_get_attachment_image_src( $post_thumbnail_id, $size, false );
-    $imgsrc = $imgsrc[0]; // Only want uri of the image
-
-    return $imgsrc;
-}
-
-function get_featured_image_src($post_id = null, $size = null) {
-    $post_id = ( null === $post_id ) ? get_the_ID() : $post_id;
-    $post_thumbnail_id = get_post_thumbnail_id( $post_id );
-
-    if (empty($size)) {
-        $meta = wp_get_attachment_metadata( $post_thumbnail_id );
-        if ((int) $meta['width'] > 500)
-            $size = array(624,9999);
-        else
-            $size = array((int) $meta['width'], (int) $meta['height']);
-    }
-
-    $imgsrc = wp_get_attachment_image_src( $post_thumbnail_id, $size, false );
-    $imgsrc = $imgsrc[0]; // Only want uri of the image
-
-    return $imgsrc;
-}
 
 function get_the_post_meta($key) {
     global $post;
@@ -277,88 +212,4 @@ function sidebar_is_populated($id) {
 
 function this_year() {
     return date('Y', shortcuts\current_time("timestamp"));
-}
-
-function formatted_date($post_date) {
-    $ts = strtotime($post_date);
-
-    $now = shortcuts\current_time("timestamp");
-    $today_start = strtotime(date('D, d M Y 00:00:00 O', $now));
-    $week_start = strtotime('last monday');
-
-    if ($ts > $today_start) {
-        $d = 'today at ' . date('g:i a', $ts);
-    } elseif ($ts > $week_start) {
-        $d = date('l \a\t g:i a', $ts);
-    } else {
-        $d = date('F j, Y \a\t g:i a', $ts);
-    }
-    return $d;
-}
-
-function relative_time($datetime) {
-    // Make sure we localize the timestamp
-    $datetime = mysql2date('Y-m-d H:i:s', $datetime, $translate=true);
-
-    // Pass it a 'YYYY-MM-DD HH:MM:SS' and it will return something
-    // like "Two hours ago", "Last week", etc.
-
-    // http://maniacalrage.net/projects/relative/
-
-    if (!preg_match("/\d\d\d\d-\d\d-\d\d \d\d\:\d\d\:\d\d/", $datetime)) {
-        return '';
-    }
-
-    $in_seconds = strtotime($datetime);
-    $now = shortcuts\current_time("timestamp");
-
-    # The clock on the DB server could be fast
-    if ( $in_seconds >= $now )
-        return 'just now';
-
-    $diff  =  $now - $in_seconds;
-    $months   =  floor($diff/2419200);
-    $diff     -= $months * 2419200;
-    $weeks    =  floor($diff/604800);
-    $diff     -= $weeks*604800;
-    $days     =  floor($diff/86400);
-    $diff     -= $days * 86400;
-    $hours    =  floor($diff/3600);
-    $diff     -= $hours * 3600;
-    $minutes = floor($diff/60);
-    $diff    -= $minutes * 60;
-    $seconds = $diff;
-
-
-    if ($months > 0) {
-        // Over a month old, just show the actual date.
-        $date = substr($datetime, 0, 10);
-        return formatted_date($date);
-
-    } else {
-        $relative_date = '';
-        if ($weeks > 0) {
-            // Weeks and days
-            $relative_date .= ($relative_date?', ':'').$weeks.' week'.($weeks>1?'s':'');
-            $relative_date .= $days>0?($relative_date?', ':'').$days.' day'.($days>1?'s':''):'';
-        } elseif ($days > 0) {
-            // days and hours
-            $relative_date .= ($relative_date?', ':'').$days.' day'.($days>1?'s':'');
-            $relative_date .= $hours>0?($relative_date?', ':'').$hours.' hour'.($hours>1?'s':''):'';
-        } elseif ($hours > 0) {
-            // hours and minutes
-            $relative_date .= ($relative_date?', ':'').$hours.' hour'.($hours>1?'s':'');
-            $relative_date .= $minutes>0?($relative_date?', ':'').$minutes.' minute'.($minutes>1?'s':''):'';
-        } elseif ($minutes > 0) {
-            // minutes only
-            $relative_date .= ($relative_date?', ':'').$minutes.' minute'.($minutes>1?'s':'');
-        } else {
-            // seconds only
-            $relative_date .= ($relative_date?', ':'').$seconds.' second'.($seconds>1?'s':'');
-        }
-    }
-
-    // Return relative date and add proper verbiage
-    return $relative_date.' ago';
-
 }
