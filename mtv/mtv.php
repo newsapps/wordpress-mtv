@@ -45,22 +45,11 @@ function register_app( $name, $path ) {
 }
 
 /**
- * run MTV
+ * load MTV
  * Takes:
- *   $url - url to run on, probably $_REQUEST['path'] or something
- *   $url_patterns - url regexes and functions to pass them to
  *   $apps - MTV apps to load. Apps must be registered. Loads in order.
  **/
-function run( $kwargs ) {
-    extract( $kwargs );
-
-    # What's the url for this request?
-    if ( ! $url )
-        $url = $_REQUEST['path'];
-
-    # globalize our $url_patterns
-    if ( $url_patterns ) $GLOBALS['url_patterns'] = $url_patterns;
-
+function load( $apps ) {
     global $registered_apps;
 
     # load our models, views and templates
@@ -98,6 +87,27 @@ function run( $kwargs ) {
         if ( $app['functions'] ) include $app['functions'];
         if ( $app['filters'] ) include $app['filters'];
     }
+
+}
+
+/**
+ * run MTV
+ * Takes:
+ *   $url - url to run on, probably $_REQUEST['path'] or something
+ *   $url_patterns - url regexes and functions to pass them to
+ *   $apps - MTV apps to load. Apps must be registered. Loads in order.
+ **/
+function run( $kwargs ) {
+    extract( $kwargs );
+
+    load( $apps );
+
+    # What's the url for this request?
+    if ( ! $url )
+        $url = $_REQUEST['path'];
+
+    # globalize our $url_patterns
+    if ( $url_patterns ) $GLOBALS['url_patterns'] = $url_patterns;
 
     # oh, right, we gotta do something with our url
     http\urlresolver( array('url'=>$url, 'url_patterns'=>$url_patterns) );
