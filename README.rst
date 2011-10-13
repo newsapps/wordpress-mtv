@@ -8,6 +8,23 @@ MTV borrows a lot from exsisting MVC-style frameworks, namely `Django <http://ww
 
 This plugin hijacks and takes over how WordPress handles URLs and templates, and gives you new ORM-style tools for handling posts, users and blogs. This plugin does nothing by itself, and (hopefully) will not break stuff that you already have. It's just a set of tools for developers to use.
 
+* Getting started
+	* Bare MTV
+	* My first theme
+* The model layer
+	* Basics of Model, ModelCollection
+		- syntax
+	* WordPress Models and ModelCollections
+* The view layer
+	* urls.php
+	* Including urls from other places
+	* Writing a view
+* The template layer
+	* Available wp template functions
+	* How to add a template functions, tags, filters
+	* Deep links to twig
+
+
 Routing URLs
 -------------
 
