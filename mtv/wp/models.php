@@ -263,11 +263,11 @@ class PostCollection extends Collection {
 
         $ret = new PostCollection();
 
-        $ret->query = new WP_Query( $kwargs );
+        $ret->wp_query = new WP_Query( $kwargs );
 
-        $ret->query->get_posts();
+        $ret->wp_query->get_posts();
 
-        foreach( $ret->query->posts as $post ) {
+        foreach( $ret->wp_query->posts as $post ) {
             $p = new Post();
             try {
                 $p->reload($post);
