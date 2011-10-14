@@ -88,15 +88,8 @@ $twig->addFunction('get_current_blog_id', new Twig_Function_Function('get_curren
 $twig->addFunction('get_site_url', new Twig_Function_Function('get_site_url'));
 $twig->addFunction('get_home_url', new Twig_Function_Function('get_home_url'));
 $twig->addFunction('get_bloginfo', new Twig_Function_Function('get_bloginfo'));
-$twig->addFunction('get_header_image', new Twig_Function_Function('get_header_image'));
-$twig->addFunction('get_header_textcolor', new Twig_Function_Function('get_header_textcolor'));
 
 // Template functions
-$twig->addFunction('wp_title', new Twig_Function_Function('wp_title'));
-$twig->addFunction('wp_get_archives', new Twig_Function_Function('wp_get_archives'));
-$twig->addFunction('wp_register', new Twig_Function_Function('wp_register'));
-$twig->addFunction('wp_loginout', new Twig_Function_Function('wp_loginout'));
-$twig->addFunction('wp_meta', new Twig_Function_Function('wp_meta'));
 $twig->addFunction('wp_head', 
     new Twig_Function_Function('mtv\wp\templatetags\functions\get_wp_head', array('is_safe'=>array('html')))
 );
