@@ -27,26 +27,23 @@ mtv\register_app( 'wp',
 /**
  * Register javascript libraries
  **/
+$js_runtime_settings = array(
+    'ajaxurl' => admin_url( 'admin-ajax.php' ),
+    'current_blog_id' => get_current_blog_id(),
+    'DEBUG' => false
+);
+
 if ( defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ) {
-
-    wp_register_script('jquery-cookie',
-        plugins_url('/mtv/devjs/jquery.cookie.js'),
-        array('jquery'),
-        "1.0.0");
-
     wp_register_script('mtv',
         plugins_url('/mtv/devjs/mtv.js'),
         array('jquery'),
         MTV_VERSION);
-    wp_register_script('mtv-store',
-        plugins_url('/mtv/devjs/mtv.store.js'),
-        array('mtv', 'jquery-cookie'),
-        MTV_VERSION);
-
     wp_register_script('mtv-all',
         '',
         array('mtv', 'mtv-store'),
         MTV_VERSION);
+
+    $js_runtime_settings['DEBUG'] = true;
 
 } else {
     wp_register_script('mtv-all',
@@ -54,6 +51,9 @@ if ( defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ) {
         array('jquery'),
         MTV_VERSION);
 }
+
+wp_localize_script('mtv-all', 'WordPress', $js_runtime_settings);
+unset($js_runtime_settings);
 
 /**
  * Use the URL resolver for ajax calls

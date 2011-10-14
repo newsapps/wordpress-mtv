@@ -83,7 +83,7 @@ $twig->addFunction('get_template_directory_uri', new Twig_Function_Function('get
 $twig->addFunction('get_theme_root', new Twig_Function_Function('get_theme_root'));
 
 // Blog functions
-// $twig->addFunction('get_blog_details', new Twig_Function_Function('get_blog_details'));
+$twig->addFunction('get_blog_details', new Twig_Function_Function('get_blog_details'));
 $twig->addFunction('get_current_blog_id', new Twig_Function_Function('get_current_blog_id'));
 $twig->addFunction('get_site_url', new Twig_Function_Function('get_site_url'));
 $twig->addFunction('get_home_url', new Twig_Function_Function('get_home_url'));
