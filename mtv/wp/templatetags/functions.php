@@ -59,7 +59,7 @@ $twig->addFunction('get_comments', new Twig_Function_Function('get_comments'));
 $twig->addFunction('mysql2date', new Twig_Function_Function('mysql2date'));
 
 // Comment form
-$twig->addFunction('cancel_comment_reply_link', new Twig_Function_Function('cancel_comment_reply_link'));
+$twig->addFunction('get_comment_reply_link', new Twig_Function_Function('get_comment_reply_link'));
 $twig->addFunction('comment_author', new Twig_Function_Function('comment_author'));
 $twig->addFunction('get_comment_excerpt', new Twig_Function_Function('get_comment_excerpt'));
 
