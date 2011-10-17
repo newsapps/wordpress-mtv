@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}
+    {{ post.post_title }} | {{ get_bloginfo('name') }}
+{% endblock %}
+
+{% block content %}
+<div id="primary">
+   <div id="content" role="main">
+		<nav id="nav-single">
+           <h3 class="assistive-text">Post navigation</h3>
+           <span class="nav-previous">{% if previous_post %}<a href="{{ previous_post.permalink }}">{{ previous_post.post_title }}</a>{% endif %}</span>
+           <span class="nav-next">{% if next_post %}<a href="{{ next_post.permalink }}">{{ next_post.post_title }}</a>{% endif %}</span>
+       </nav><!-- #nav-single -->
+
+		<article id="post-{{ post.id }}" class="{% for class in post.post_class %}{{ class }} {% endfor %}">
+		    <header class="entry-header">
+		        <h1 class="entry-title">{{ post.post_title|raw }}</h1>
+		
+				{% if post.post_type == 'post' %}
+		            <div class="entry-meta">
+		                <p class="post-author">Written by {{ get_the_author_meta('display_name', post.post_author) }} on {{ post.post_date|date('d/m/Y') }}</p>
+		            </div><!-- .entry-meta -->
+		        {% endif %}
+		    </header><!-- .entry-header -->
+
+		    <div class="entry-content">
+		        {{ wpautop(post.post_content)|raw }}
+		    </div><!-- .entry-content -->
+
+			{# No views written for category and tag pages yet! #}
+			{# <footer class="entry-meta">
+		        {% if post.tags %}
+		            This entry was posted in 
+		            {% for cat in post.categories %}
+		                <a href="/category/{{ cat.slug }}">{{ cat.name}}</a>{% if not loop.last %}, {% endif %}
+		            {% endfor %} 
+		            and tagged  
+		            {% for tag in post.tags %}
+		                <a href="/tag/{{ tag.slug }}">{{ tag.name}}</a>{% if not loop.last %}, {% endif %}
+		            {% endfor %} 
+		             by <a href="/author/{{ get_the_author_meta('user_nicename', post.post_author)}}">{{ get_the_author_meta('display_name', post.post_author)|raw }}</a>. Bookmark the <a href="{{ post.permalink }}" title="Permalink to {{ post.post_title|raw }}" rel="bookmark">permalink</a>.
+		        {% elseif not post.tags %}
+		            This entry was posted in 
+		            {% for cat in post.categories %}
+		                <a href="/category/{{ cat.slug }}">{{ cat.name}}</a>{% if not loop.last %}, {% endif %}
+		            {% endfor %} 
+		             by <a href="/author/{{ get_the_author_meta('user_nicename', post.post_author)}}">{{ get_the_author_meta('display_name', post.post_author)|raw }}</a>. Bookmark the <a href="{{ post.permalink }}" title="Permalink to {{ post.post_title|raw }}" rel="bookmark">permalink</a>.
+		        {% elseif not post.categories and not post.tags %}
+		            This entry was posted by <a href="/author/{{ get_the_author_meta('user_nicename', post.post_author)}}">{{ get_the_author_meta('display_name', post.post_author)|raw }}</a>. Bookmark the <a href="{{ post.permalink }}" title="Permalink to {{ post.post_title|raw }}" rel="bookmark">permalink</a>.
+		        {% endif %}
+
+		        {% if get_edit_post_link(post.id, '') %}
+		            <span class="edit-link"><a href="{{ get_edit_post_link(post.id, '') }}">Edit</a></span>
+		        {% endif %}
+
+		        {% if get_the_author_meta('description', post.post_author ) %}
+		            <div id="author-info">
+		                <div id="author-avatar">
+		                    {{ get_avatar(get_the_author_meta('user_email', post.post_author), 68) }}
+		                </div><!-- #author-avatar -->
+		                <div id="author-description">
+		                    <h2>About {{ get_the_author_meta('display_name', post.post_author) }}</h2>
+		                    {{ get_the_author_meta('description', post.post_author)|raw }}
+		                    <div id="author-link">
+		                        <a href="/author/{{ get_the_author_meta('user_nicename', post.post_author)}}" rel="author">View all posts by {{ get_the_author_meta('display_name', post.post_author)|raw }} <span class="meta-nav">&rarr;</span></a>
+		                    </div><!-- #author-link -->
+		                </div><!-- #author-description -->
+		            </div><!-- #entry-author-info -->
+		        {% endif %}
+		    </footer><!-- .entry-meta --> #}
+		</article><!-- #post-{{ post.id }} -->
+		{# Once we write some code for comment forms, this will show up comments #}
+		{# {% if not is_preview() %}
+	    <div id="comments">
+	        {% if post.comment_count > 0 %}
+	        <h3 id="reply-title">Comments</h3>
+	        <a class="respond-anchor" href="#login">Leave a comment</a>
+	        {% endif %}
+	        <div id="comment-list">
+	            <ul>
+	            {% for comment in get_comments({'post_id': post.id, 'status': 'approve', 'order': 'ASC', 'parent': 0}) %}
+				
+	                {% include '_comment.html' %}
+
+	            {% endfor %}
+	            </ul>
+	        </div>
+	    </div>
+	    {% endif %} #}
+   </div><!-- #content -->
+</div><!-- #primary -->
+{% endblock %}

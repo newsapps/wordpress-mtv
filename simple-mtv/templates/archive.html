@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="content" role="main">
+	<header class="page-header">
+		<h2 class="page-title">{{ get_bloginfo('name')|raw }} Archive</h2>
+	</header>
+
+	<ul class="archive-list">
+	    {{ archive_list|raw }}
+	</ul>
+	{% include '_pagination.html' %}
+</div>
+{% endblock content %}

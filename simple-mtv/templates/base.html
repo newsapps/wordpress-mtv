@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{# This is our base template for all pages. It sets up our head and includes our header and footer. #}
+<!--[if IE 6]>
+<html id="ie6" {{ language_attributes() }}>
+<![endif]-->
+<!--[if IE 7]>
+<html id="ie7" {{ language_attributes() }}>
+<![endif]-->
+<!--[if IE 8]>
+<html id="ie8" {{ language_attributes() }}>
+<![endif]-->
+<!--[if !(IE 6) | !(IE 7) | !(IE 8)  ]><!-->
+<html {{ language_attributes() }}>
+<!--<![endif]-->
+    <head>
+        <meta charset="{{ get_bloginfo( 'charset' ) }}" />
+        <meta name="viewport" content="width=device-width" />
+        <title>{% block title %}
+            {{ get_bloginfo('name') }}{% if get_bloginfo( 'description', 'display' ) and is_home() %}
+            | {{ get_bloginfo( 'description', 'display' ) }}{% endif %}
+            {% endblock %}</title>
+        <link rel="profile" href="http://gmpg.org/xfn/11" />
+        <link rel="stylesheet" type="text/css" media="all" href="{{ get_bloginfo( 'stylesheet_url' ) }}" />
+        <link rel="pingback" href="{{ get_bloginfo( 'pingback_url' ) }}" />
+        <!--[if lt IE 9]>
+        <script src="{{ get_template_directory_uri() }}/js/html5.js" type="text/javascript"></script>
+        <![endif]-->
+        
+        {{ wp_head() }}
+    </head>
+
+    <body {{ body_class() }}>
+        <div id="page" class="hfeed">
+            <header id="branding" role="banner">
+            <hgroup>
+            <h1 id="site-title"><span><a href="{{ get_home_url( '/' ) }}" title="{{ esc_attr( get_bloginfo( 'name', 'display' ) ) }}" rel="home">{{ get_bloginfo( 'name' ) }}</a></span></h1>
+            <h2 id="site-description">{{ get_bloginfo( 'description' ) }}</h2>
+            </hgroup>
+		{# search functionality not implemented yet -- why don't you give us a hand with it? #}
+        {#   {% include '_searchform.html' %} #}
+
+            <nav id="access" role="navigation">
+            <h3 class="assistive-text">Main menu</h3>
+            <div class="skip-link"><a class="assistive-text" href="#content" title="Skip to primary content">Skip to primary content</a></div>
+            <div class="skip-link"><a class="assistive-text" href="#secondary" title="Skip to secondary content">Skip to secondary content</a></div>
+            {{ wp_nav_menu( { 'theme_location': 'primary' } ) }}
+            </nav><!-- #access -->
+            </header><!-- #branding -->
+
+            {{ get_header() }}
+
+            <div id="main">
+                {% block content %}{% endblock %}
+            </div><!-- #main -->
+
+            <footer id="colophon" role="contentinfo">
+
+            <div id="site-generator">
+                <a href="http://wordpress.org/"
+                   title="Semantic Personal Publishing Platform"
+                   rel="generator">Powered by WordPress</a>
+            </div>
+            </footer><!-- #colophon -->
+        </div><!-- #page -->
+        {{ get_footer() }}
+        {{ wp_footer() }}
+
+    </body>
+</html>

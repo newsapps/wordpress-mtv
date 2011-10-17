@@ -1,0 +1,15 @@
+<nav id="{{ nav_id }}">
+
+    <h3 class="assistive-text">Post navigation</h3>
+    <div class="nav-previous">
+        {% if page_num > 1 %}
+        <a href="{{ location }}/page/{{ page_num - 1 }}/"><span class="meta-nav">&larr;</span> Older posts</a>
+        {% endif %}
+    </div>
+    <div class="nav-next">
+        {% if more_posts %}
+        <a href="{{ location }}/page/{{ page_num + 1 }}/">
+            Newer posts <span class="meta-nav">&rarr;</span></a>
+        {% endif %}
+    </div>
+</nav>
