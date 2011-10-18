@@ -30,15 +30,15 @@ $result = new PHPUnit_Framework_TestResult;
 $result->addListener($printer);
 
 // Test core MTV functions
-require_once 'MTVCoreTest.php';
+require_once 'test_core.php';
 $tests['MTVCoreTest'] = new PHPUnit_Framework_TestSuite('MTVCoreTest');
 
 // Test MTV's http lib
-require_once 'MTVHttpTest.php';
+require_once 'test_http.php';
 $tests['MTVHttpTest'] = new PHPUnit_Framework_TestSuite('MTVHttpTest');
 
 // Test Model model
-require_once 'MTVModelTest.php';
+require_once 'test_model.php';
 $tests['MTVModelTest'] = new PHPUnit_Framework_TestSuite('MTVModelTest');
 
 // TODO:

@@ -1,6 +1,6 @@
 <?php
 
-require_once 'MTVTest.php';
+require_once 'lib/mtv_test_classes.php';
 
 class MTVCoreTest extends MTVTest {
 

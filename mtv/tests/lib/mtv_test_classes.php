@@ -49,7 +49,7 @@ class MTVOutputTest extends PHPUnit_Extensions_OutputTestCase {
 }
 
 function check_before_wreck() {
-    require_once dirname(__FILE__) . '/lib/cli-load.php';
+    require_once dirname(__FILE__) . '/cli-load.php';
 
     $plugin_file = ABSPATH . 'wp-admin/includes/plugin.php';
 

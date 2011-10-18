@@ -1,6 +1,6 @@
 <?php
 
-require_once 'MTVTest.php';
+require_once 'lib/mtv_test_classes.php';
 
 /*
  * TODO: Fill in the stubbed tests below.
