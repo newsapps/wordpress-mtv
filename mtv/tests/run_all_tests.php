@@ -41,10 +41,11 @@ $tests['MTVHttpTest'] = new PHPUnit_Framework_TestSuite('MTVHttpTest');
 require_once 'test_model.php';
 $tests['MTVModelTest'] = new PHPUnit_Framework_TestSuite('MTVModelTest');
 
-// TODO:
-
 // Test Collection model
-// Stub
+require_once 'test_collection.php';
+$tests['MTVCollectionTest'] = new PHPUnit_Framework_TestSuite('MTVCollectionTest');
+
+// TODO:
 
 // Test Post model
 // Stub
