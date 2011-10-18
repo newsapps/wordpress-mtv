@@ -22,7 +22,7 @@ class MTVCoreTest extends MTVTest {
     }
 
     public function test_load() {
-        global $registered_apps, $twig, $apps;
+        global $twig, $apps;
 
         // Register and load test_app
         \mtv\register_app('test_app', dirname(__FILE__) . '/test_app');
@@ -39,8 +39,6 @@ class MTVCoreTest extends MTVTest {
     }
 
     public function test_run() {
-        global $registered_apps, $apps, $url_patterns;
-
         /*
          * NOTE: This test checks functionality of
          * the http.php lib. If these tests pass,
