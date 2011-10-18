@@ -57,8 +57,8 @@ function load( $apps ) {
     foreach ( $apps as $name ) {
         $app = $registered_apps[$name];
 
-        if ( $app['views'] ) include $app['views'];
-        if ( $app['models'] ) include $app['models'];
+        if ( $app['views'] ) include_once $app['views'];
+        if ( $app['models'] ) include_once $app['models'];
 
         if ( $app['templates'] ) array_push($template_dirs, $app['templates']);
     }
@@ -83,9 +83,9 @@ function load( $apps ) {
     # now that we have a template engine, load some goodies
     foreach ( $apps as $name ) {
         $app = $registered_apps[$name];
-        if ( $app['tags'] ) include $app['tags'];
-        if ( $app['functions'] ) include $app['functions'];
-        if ( $app['filters'] ) include $app['filters'];
+        if ( $app['tags'] ) include_once $app['tags'];
+        if ( $app['functions'] ) include_once $app['functions'];
+        if ( $app['filters'] ) include_once $app['filters'];
     }
 
 }

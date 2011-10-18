@@ -46,12 +46,12 @@ class Model {
 
     // Write the data in this model to permanent storage
     public function save() {
-        throw new NotImplementedException();
+        throw new \NotImplementedException();
     }
 
     // Validate the data in this model
     public function validate() {
-        throw new NotImplementedException();
+        throw new \NotImplementedException();
     }
 
     // Call initialize when the model is created
@@ -97,7 +97,7 @@ class Model {
         // $from_db = new Object;
         // pass the results to reload
         // $this->reload( $from_db );
-        throw new NotImplementedException();
+        throw new \NotImplementedException();
     }
 
     /**
@@ -245,8 +245,8 @@ class Collection implements Iterator, ArrayAccess, Countable {
         return $model;
     }
 
-    public static function get_by( $kwargs ) { throw new NotImplementedException(); }
-    public static function filter( $kwargs ) { throw new NotImplementedException(); }
+    public static function get_by( $kwargs ) { throw new \NotImplementedException(); }
+    public static function filter( $kwargs ) { throw new \NotImplementedException(); }
 }
 
 /**
