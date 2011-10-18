@@ -4,8 +4,6 @@ namespace mtv\wp\templatetags\functions;
 use mtv\shortcuts;
 use Twig_Function_Function;
 
-global $twig;
-
 // Debug
 $twig->addFunction('print_r', new Twig_Function_Function('print_r'));
 
@@ -57,19 +55,13 @@ $twig->addFunction('get_the_author_meta', new Twig_Function_Function('get_the_au
 // Post functions
 $twig->addFunction('get_edit_post_link', new Twig_Function_Function('get_edit_post_link'));
 $twig->addFunction('wpautop', new Twig_Function_Function('wpautop'));
-$twig->addFunction('wp_list_comments', new Twig_Function_Function('wp_list_comments'));
 $twig->addFunction('get_comments', new Twig_Function_Function('get_comments'));
 $twig->addFunction('mysql2date', new Twig_Function_Function('mysql2date'));
-$twig->addFunction('twentyeleven_posted_on', new Twig_Function_Function('twentyeleven_posted_on'));
 
 // Comment form
-$twig->addFunction('comments_open', new Twig_Function_Function('comments_open'));
-$twig->addFunction('site_url', new Twig_Function_Function('site_url'));
-$twig->addFunction('comment_id_fields', new Twig_Function_Function('comment_id_fields'));
-$twig->addFunction('cancel_comment_reply_link', new Twig_Function_Function('cancel_comment_reply_link'));
-$twig->addFunction('comment_form_title', new Twig_Function_Function('comment_form_title'));
 $twig->addFunction('get_comment_reply_link', new Twig_Function_Function('get_comment_reply_link'));
 $twig->addFunction('comment_author', new Twig_Function_Function('comment_author'));
+$twig->addFunction('get_comment_excerpt', new Twig_Function_Function('get_comment_excerpt'));
 
 // Thumbnails
 $twig->addFunction('has_post_thumbnail', new Twig_Function_Function('has_post_thumbnail'));
@@ -80,7 +72,6 @@ $twig->addFunction('get_attachment_url', new Twig_Function_Function('wp_get_atta
 $twig->addFunction('get_attachment_thumb_url', new Twig_Function_Function('wp_get_attachment_thumb_url'));
 
 // Post attachments
-$twig->addFunction('wp_get_attachment_image_src', new Twig_Function_Function('wp_get_attachment_image_src'));
 
 // Theme functions
 // CSS
@@ -97,15 +88,8 @@ $twig->addFunction('get_current_blog_id', new Twig_Function_Function('get_curren
 $twig->addFunction('get_site_url', new Twig_Function_Function('get_site_url'));
 $twig->addFunction('get_home_url', new Twig_Function_Function('get_home_url'));
 $twig->addFunction('get_bloginfo', new Twig_Function_Function('get_bloginfo'));
-$twig->addFunction('get_header_image', new Twig_Function_Function('get_header_image'));
-$twig->addFunction('get_header_textcolor', new Twig_Function_Function('get_header_textcolor'));
 
 // Template functions
-$twig->addFunction('wp_title', new Twig_Function_Function('wp_title'));
-$twig->addFunction('wp_get_archives', new Twig_Function_Function('wp_get_archives'));
-$twig->addFunction('wp_register', new Twig_Function_Function('wp_register'));
-$twig->addFunction('wp_loginout', new Twig_Function_Function('wp_loginout'));
-$twig->addFunction('wp_meta', new Twig_Function_Function('wp_meta'));
 $twig->addFunction('wp_head', 
     new Twig_Function_Function('mtv\wp\templatetags\functions\get_wp_head', array('is_safe'=>array('html')))
 );
@@ -135,11 +119,6 @@ $twig->addFunction('this_year',
 $twig->addFunction('wp_nav_menu',
     new Twig_Function_Function('wp_nav_menu', array('is_safe'=>array('html'))));
 $twig->addFunction('is_active_sidebar', new Twig_Function_Function('is_active_sidebar'));
-
-function get_the_post_meta($key) {
-    global $post;
-    return get_post_meta($post->ID, $key, true);
-}
 
 function get_wp_head() {
     ob_start();

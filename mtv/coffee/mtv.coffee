@@ -2,9 +2,8 @@ unless $ then $ = jQuery
 
 window.MTV = new Object
     debugging: () ->
-        if WordPress.DEPLOYMENT_SETTINGS isnt 'production' or
-            not @hasConsole() then no
-        else yes
+        if WordPress.DEBUG and @hasConsole() then yes
+        else no
 
     hasConsole: `function() {
         try {

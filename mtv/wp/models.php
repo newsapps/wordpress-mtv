@@ -263,11 +263,11 @@ class PostCollection extends Collection {
 
         $ret = new PostCollection();
 
-        $ret->query = new WP_Query( $kwargs );
+        $ret->wp_query = new WP_Query( $kwargs );
 
-        $ret->query->get_posts();
+        $ret->wp_query->get_posts();
 
-        foreach( $ret->query->posts as $post ) {
+        foreach( $ret->wp_query->posts as $post ) {
             $p = new Post();
             try {
                 $p->reload($post);
@@ -285,6 +285,7 @@ class PostCollection extends Collection {
     }
 }
 
+# TODO: make user meta work like it does in Post
 class User extends Model {
     public $defaults = array(
         'id' => '0',
@@ -554,27 +555,6 @@ class SiteCollection extends Collection {
         $query = "select * from wp_blogs where public='1' and archived='0' and spam='0' and deleted='0' and mature='0'";
         return new SiteCollection($wpdb->get_results($query, ARRAY_A));
     }
-}
-/**
- * Utilities
- **/
-function rand_username( $length = 8,
-        $chars = 'abcdefghijklmnopqrstuvwxyz1234567890') {
-    // Length of character list
-    $chars_length = (strlen($chars) - 1);
-
-    // Start our string
-    $string = $chars{rand(0, $chars_length)};
-    // Generate random string
-    for ($i = 1; $i < $length; $i = strlen($string))
-    {
-        // Grab a random character from our list
-        $r = $chars{rand(0, $chars_length)};
-        // Make sure the same two characters don't appear next to each other
-        if ($r != $string{$i - 1}) $string .=  $r;
-    }
-    // Return the string
-    return $string;
 }
 
 # this returns an array of fields that wordpress's update_user can handle
