@@ -8,3 +8,4 @@ MTV borrows a lot from existing MVC-style frameworks, namely `Django <http://www
 
 This plugin hijacks and takes over how WordPress handles URLs and templates, and gives you new ORM-style tools for handling posts, users and blogs. This plugin does nothing by itself, and (hopefully) will not break stuff that you already have. It's just a set of tools for developers to use.
 
+Get started by reading the `wiki <https://github.com/newsapps/wordpress-mtv/wiki>`_.
