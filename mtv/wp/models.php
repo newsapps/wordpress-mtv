@@ -262,15 +262,14 @@ class PostCollection extends Collection {
         $tmp_post = $post;
 
         $class = get_called_class();
+        $model_class = $class::get_model();
 
         $ret = new $class();
-
         $ret->wp_query = new WP_Query( $kwargs );
-
         $ret->wp_query->get_posts();
 
         foreach( $ret->wp_query->posts as $post ) {
-            $p = new $class::$model();
+            $p = new $model_class();
             try {
                 $p->reload($post);
                 $ret->add($p);
