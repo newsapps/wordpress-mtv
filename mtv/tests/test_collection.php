@@ -9,12 +9,6 @@ class MTVCollectionTest extends MTVTest {
         $this->collection = new \mtv\models\Collection;
     }
 
-    public function test_get_model() {
-        $ret = $this->collection->get_model();
-
-        $this->assertEquals($ret, 'mtv\models\Model');
-    }
-
     public function test_current() {
         // Bare Collection is initialized with no models
         $ret = $this->collection->current();

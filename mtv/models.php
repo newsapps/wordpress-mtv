@@ -171,17 +171,9 @@ class Collection implements Iterator, ArrayAccess, Countable {
     public static $model  = 'mtv\models\Model';
 
     public function __construct( $array=array() ) {
-        $class = get_called_class();
-        $model_class = $class::get_model();
         foreach ( $array as $kwargs ) {
-            array_push( $this->models, new $model_class( $kwargs ) );
+            array_push( $this->models, new static::$model( $kwargs ) );
         }
-    }
-
-    public static function get_model() {
-        $class = get_called_class();
-        $model_class = $class::$model;
-        return $model_class;
     }
 
     // Iterator interface
@@ -204,7 +196,7 @@ class Collection implements Iterator, ArrayAccess, Countable {
         return isset( $this->models[$offset] );
     }
     public function offsetGet( $offset ) {
-        return isset( $this->models[$offset] ) ? $this->models[$offset] : null;    
+        return isset( $this->models[$offset] ) ? $this->models[$offset] : null;
     }
     public function offsetSet( $offset, $value ) {
         if (is_null($offset)) $this->models[] = $value;
@@ -238,9 +230,7 @@ class Collection implements Iterator, ArrayAccess, Countable {
     }
 
     public static function get( $kwargs ) {
-        $class = get_called_class();
-        $model_class = $class::get_model();
-        $model = new $model_class( $kwargs );
+        $model = new static::$model( $kwargs );
         $model->fetch();
         return $model;
     }

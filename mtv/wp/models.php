@@ -262,14 +262,13 @@ class PostCollection extends Collection {
         $tmp_post = $post;
 
         $class = get_called_class();
-        $model_class = $class::get_model();
 
         $ret = new $class();
         $ret->wp_query = new WP_Query( $kwargs );
         $ret->wp_query->get_posts();
 
         foreach( $ret->wp_query->posts as $post ) {
-            $p = new $model_class();
+            $p = new static::$model();
             try {
                 $p->reload($post);
                 $ret->add($p);
@@ -461,7 +460,7 @@ class UserCollection extends Collection {
             if ( $userid === 0 ) throw new JsonableException("I don't know that user name");
         } else throw new NotImplementedException();
 
-        $user = new User( array( 'id'=>$userid ) );
+        $user = new static::$model( array( 'id'=>$userid ) );
         $user->fetch();
         return $user;
     }
@@ -469,9 +468,9 @@ class UserCollection extends Collection {
     public static function get_current() {
         $userid = get_current_user_id();
         if ( empty($userid) )
-            return new User();
+            return new static::$model();
         else {
-            $user = new User( array( 'id'=>$userid ) );
+            $user = new static::$model( array( 'id'=>$userid ) );
             $user->fetch();
             return $user;
         }
@@ -489,10 +488,11 @@ class UserCollection extends Collection {
         # the query based on the permissions for this blog. Hacky.
         if ( !isset($kwargs['blog_id']) ) $kwargs['blog_id'] = 0;
 
+        $class = get_called_class();
         $users = get_users( $kwargs );
-        $collection = new UserCollection();
+        $collection = new $class();
         foreach ($users as $u) {
-            $new_user = new User;
+            $new_user = new static::$model();
             $new_user->reload( $u );
             $collection->add( $new_user );
         }
@@ -538,11 +538,12 @@ class SiteCollection extends Collection {
             if ( $userid === 0 ) throw new JsonableException("I don't know that username");
         } else throw new NotImplementedException();
 
+        $class = get_called_class();
         $blogdata = get_blogs_of_user($userid);
-        $sites = new SiteCollection;
+        $sites = new $class();
         if ( !empty($blogdata) ) {
             foreach($blogdata as $b) {
-                $site = new Site();
+                $site = new static::$model();
                 $site->reload($b);
                 $sites->add($site);
             }
@@ -553,8 +554,9 @@ class SiteCollection extends Collection {
     public static function published( ) {
         global $wpdb;
 
+        $class = get_called_class();
         $query = "select * from wp_blogs where public='1' and archived='0' and spam='0' and deleted='0' and mature='0'";
-        return new SiteCollection($wpdb->get_results($query, ARRAY_A));
+        return new $class($wpdb->get_results($query, ARRAY_A));
     }
 }
 
