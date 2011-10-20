@@ -31,6 +31,8 @@ class Model {
     // Attributes that can be updated over the wire
     public $editable_json_fields = array();
 
+    public static $collection = 'mtv\models\Collection';
+
     // Is this model's data sync'd with the DB?
     protected $_synchronized = false;
     // Attributes that have been changed since the last save or fetch

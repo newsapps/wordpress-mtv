@@ -300,6 +300,8 @@ class User extends Model {
         "first_name", "last_name", "user_description", "zip",
         "user_pass", "jabber", "aim", "yim", "userpic", "userthumb" );
 
+    public static $collection = 'mtv\wp\models\UserCollection';
+
     public function initialize( $attrs ) {
         if ( empty($attrs['avatar']) )
             $this->avatar = get_avatar($attrs['id']);
@@ -409,7 +411,8 @@ class User extends Model {
         if ( ! empty( $kwargs['user_login'] ) ) {
             $creds['user_login'] = $kwargs['user_login'];
         } elseif ( ! empty( $kwargs['user_email'] ) ) {
-            $user = UserCollection::get_by( array( 'user_email' => $kwargs['user_email'] ) );
+            $collection = static::$collection;
+            $user = $collection::get_by( array( 'user_email' => $kwargs['user_email'] ) );
             $creds['user_login'] = $user->user_login;
         } else throw new JsonableException("Please enter your user name or email address.");
 
