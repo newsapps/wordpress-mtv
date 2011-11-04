@@ -11,10 +11,10 @@
   }
   window.MTV = new Object({
     debugging: function() {
-      if (WordPress.DEPLOYMENT_SETTINGS !== 'production' || !this.hasConsole()) {
-        return false;
-      } else {
+      if (WordPress.DEBUG && this.hasConsole()) {
         return true;
+      } else {
+        return false;
       }
     },
     hasConsole: function() {
