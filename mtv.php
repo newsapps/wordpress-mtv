@@ -75,7 +75,7 @@ function load( $apps ) {
     } else {
         # TODO: get a temp directory from php to use for caching
         $twig = new Twig_Environment($loader, array(
-            'cache' => '/tmp/mtv_tmpl_cache',
+            'cache' => __DIR__.'/tmp/mtv_tmpl_cache',
             'auto_reload' => true
         ));
     }
