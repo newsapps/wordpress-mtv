@@ -12,6 +12,7 @@ use mtv\models\Model,
     mtv\models\ModelNotFound,
     WPException,
     JsonableException,
+    BadMethodCallException,
     WP_Query;
 
 /**
