@@ -195,6 +195,20 @@ class Post extends Model {
         return get_the_tags($this->id);
     }
 
+    public function featured_image() {
+        return PostCollection::get($this->post_meta['_thumbnail_id']);
+    }
+
+    public function attachments( $args ) {
+        $filter = array_merge( array(
+           'post_type' => 'attachment',
+           'numberposts' => -1,
+           'post_status' => null,
+           'post_parent' => $this->id
+        ), $args);
+        return PostCollection::filter( $filter );
+    }
+
     public function the_time($format = null) {
         if ($format)
             return mysql2date($format, $this->post_date);
