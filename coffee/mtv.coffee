@@ -46,10 +46,13 @@ window.MTV = new Object
 # Custom Backbone sync function that works with wordpress ajax
 #
 if Backbone in window or window['Backbone'] isnt null
-    Backbone.sync = (method, model, success, error) ->
+    Backbone.sync = (method, model, options) ->
 
         data = if method is 'create' or method is 'update' then model.toJSON() else null
 
         url = unless method is 'read' then "#{model.url()}/#{method}" else model.url()
+
+        success = options.success
+        error = options.error
 
         MTV.do_ajax url, data, success, error

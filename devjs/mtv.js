@@ -67,10 +67,12 @@
     }
   });
   if (__indexOf.call(window, Backbone) >= 0 || window['Backbone'] !== null) {
-    Backbone.sync = function(method, model, success, error) {
-      var data, url;
+    Backbone.sync = function(method, model, options) {
+      var data, error, success, url;
       data = method === 'create' || method === 'update' ? model.toJSON() : null;
       url = method !== 'read' ? "" + (model.url()) + "/" + method : model.url();
+      success = options.success;
+      error = options.error;
       return MTV.do_ajax(url, data, success, error);
     };
   }

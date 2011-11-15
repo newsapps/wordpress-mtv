@@ -34,13 +34,9 @@ $js_runtime_settings = array(
 );
 
 if ( defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ) {
-    wp_register_script('mtv',
+    wp_register_script('mtv-all',
         plugins_url('/mtv/devjs/mtv.js'),
         array('jquery'),
-        MTV_VERSION);
-    wp_register_script('mtv-all',
-        '',
-        array('mtv'),
         MTV_VERSION);
 
     $js_runtime_settings['DEBUG'] = true;
