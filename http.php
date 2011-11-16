@@ -38,7 +38,10 @@ function urlresolver( $kwargs ) {
             return true;
         } else
             // We didn't find any matching patterns :( So... 404!
-            throw new Http404;
+            if (defined('DOING_AJAX') && DOING_AJAX)
+                throw new AjaxHttp404;
+            else
+                throw new Http404;
 
     } catch (HttpException $e) {
         ob_end_clean();
@@ -47,7 +50,11 @@ function urlresolver( $kwargs ) {
     } catch (Exception $e) {
         ob_end_clean();
         // Somebody threw some sort of exception, so display 500
-        $http_ex = new Http500($e->getMessage(), $e->getCode());
+        if (defined('DOING_AJAX') && DOING_AJAX)
+            $http_ex = new AjaxHttp500($e->getMessage(), $e->getCode());
+        else
+            $http_ex = new Http500($e->getMessage(), $e->getCode());
+
         $http_ex->display();
     }
 
@@ -120,7 +127,7 @@ class Http404 extends HttpException {
     public function display_message() {
         global $wp_query;
         $wp_query->is_404 = true;
-        
+
         shortcuts\set_query_flags('page');
         shortcuts\display_template(
             '404.html',
