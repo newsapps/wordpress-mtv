@@ -211,7 +211,10 @@ class Post extends Model {
     }
 
     public function featured_image() {
-        return PostCollection::get($this->post_meta['_thumbnail_id']);
+        return PostCollection::get(array(
+            'id' => $this->post_meta['_thumbnail_id'],
+            'blogid' => $this->blogid
+        ));
     }
 
     public function attachments( $extra_query_args ) {
