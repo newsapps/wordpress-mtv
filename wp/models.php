@@ -220,8 +220,8 @@ class Post extends Model {
     public function attachments( $extra_query_args=array() ) {
         $filter = array_merge( array(
            'post_type' => 'attachment',
-           'numberposts' => -1,
-           'post_status' => null,
+           'posts_per_page' => -1,
+           'post_status' => 'any',
            'post_parent' => $this->id
         ), $extra_query_args);
         return PostCollection::filter( $filter );
