@@ -217,7 +217,7 @@ class Post extends Model {
         ));
     }
 
-    public function attachments( $extra_query_args ) {
+    public function attachments( $extra_query_args=array() ) {
         $filter = array_merge( array(
            'post_type' => 'attachment',
            'numberposts' => -1,
