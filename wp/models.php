@@ -12,6 +12,7 @@ use mtv\models\Model,
     mtv\models\ModelNotFound,
     WPException,
     JsonableException,
+    BadMethodCallException,
     WP_Query;
 
 /**
@@ -50,7 +51,6 @@ use mtv\models\Model,
  *
  * Special MTV fields:
  *   post_meta      // an array containing all of the meta for this post
- *   permalink      // permalink for this post, from WP get_permalink()
  *   blogid         // id number of the blog this post lives on
  *   post_format    // the post_format for this post
  *   url            // attachments only, url of the original uploaded image or whatever
@@ -63,6 +63,22 @@ use mtv\models\Model,
  *     Check if post is sticky.
  *   post_class()
  *     Retrieve the classes for the post div as an array.
+ *   permalink()
+ *     permalink for this post, from WP get_permalink()
+ *   categories()
+ *     returns an array of categories that are associated with this post
+ *   tags()
+ *     returns an array of tags that are associated with this post
+ *   featured_image()
+ *     Returns a Post object representing the featured image
+ *   attachments( $extra_query_args )
+ *     Returns a PostCollection object representing attachments (gallery images)
+ *   the_time( $format )
+ *     Returns a formatted date string. Works like WordPress's 'the_time'.
+ *   the_date( $format )
+ *     Returns a formatted date string. Works like WordPress's 'the_date'.
+ *   make_excerpt( $more_text )
+ *     Returns a generated excerpt. Simliar to how WordPress makes excerpts in The Loop.
  **/
 class Post extends Model {
     public function __toString() {
@@ -192,6 +208,23 @@ class Post extends Model {
 
     public function tags() {
         return get_the_tags($this->id);
+    }
+
+    public function featured_image() {
+        return PostCollection::get(array(
+            'id' => $this->post_meta['_thumbnail_id'],
+            'blogid' => $this->blogid
+        ));
+    }
+
+    public function attachments( $extra_query_args=array() ) {
+        $filter = array_merge( array(
+           'post_type' => 'attachment',
+           'posts_per_page' => -1,
+           'post_status' => 'any',
+           'post_parent' => $this->id
+        ), $extra_query_args);
+        return PostCollection::filter( $filter );
     }
 
     public function the_time($format = null) {

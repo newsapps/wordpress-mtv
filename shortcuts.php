@@ -14,11 +14,21 @@ use mtv\models\wp\PostCollection;
 /**
  * Render and display a template
  **/
-function display_template($template_name, $context=array()) {
+function display_template( $template_name, $context=array() ) {
     global $twig;
 
-    $template = $twig->loadTemplate($template_name);
-    $template->display($context);
+    $template = $twig->loadTemplate( $template_name );
+    $template->display( $context );
+}
+
+/**
+ * Render and return a template
+ **/
+function render( $template_name, $context=array() ) {
+    global $twig;
+
+    $template = $twig->loadTemplate( $template_name );
+    return $template->render( $context );
 }
 
 /**
@@ -26,7 +36,7 @@ function display_template($template_name, $context=array()) {
  **/
 function display_json($data) {
     header('Cache-Control: no-cache, must-revalidate');
-    header('Content-type: application/json');    
+    header('Content-type: application/json');
     print( json_encode( $data ) );
 }
 

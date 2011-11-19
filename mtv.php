@@ -68,16 +68,18 @@ function load( $apps ) {
 
     global $twig;
 
-    $loader =  new Twig_Loader_Filesystem($template_dirs);
+    if (empty($twig)) {
+        $loader =  new Twig_Loader_Filesystem($template_dirs);
 
-    if ( DEPLOYMENT_TARGET == "development" ) {
-        $twig = new Twig_Environment($loader, array('debug' => true));
-    } else {
-        # TODO: get a temp directory from php to use for caching
-        $twig = new Twig_Environment($loader, array(
-            'cache' => __DIR__.'/tmp/mtv_tmpl_cache',
-            'auto_reload' => true
-        ));
+        if ( DEPLOYMENT_TARGET == "development" ) {
+            $twig = new Twig_Environment($loader, array('debug' => true));
+        } else {
+            # TODO: get a temp directory from php to use for caching
+            $twig = new Twig_Environment($loader, array(
+                'cache' => __DIR__.'/tmp/mtv_tmpl_cache',
+                'auto_reload' => true
+            ));
+        }
     }
 
     # now that we have a template engine, load some goodies
