@@ -345,7 +345,6 @@ class User extends Model {
     }
 
     public function save() {
-
         // split the incoming data into stuff we can pass to wp_update_user and
         // stuff we have to add with update_user_meta
         $userdata = parse_user( $this->attributes );
@@ -356,6 +355,8 @@ class User extends Model {
         );
 
         unset($usermeta['id']); // make sure we don't accidently save the id as meta
+
+        $userdata['user_login'] = preg_replace('/\s+/', '', sanitize_user( $userdata['nickname'], true ));
 
         // Create
         if ( empty($this->id) ) {
