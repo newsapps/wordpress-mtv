@@ -64,7 +64,7 @@ function urlresolver( $kwargs ) {
 function resolve($url, $url_patterns) {
     // cycle through our patterns in order to find a view to execute
     foreach ($url_patterns as $pattern => $view) {
-        if ( is_array( $view ) ) return resolve($url, $view);
+        if ( is_array( $view ) ) resolve($url, $view);
         else if ( preg_match($pattern, $url, $matches) > 0 ) {
             // we found a match!
 
