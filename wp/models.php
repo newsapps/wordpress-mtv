@@ -344,7 +344,25 @@ class User extends Model {
         return $this->display_name;
     }
 
+    public function validate() {
+        // Register
+        if ( empty($this->id) ) {
+            // Validate username and email
+            $result = wpmu_validate_user_signup($this->user_login, $this->user_email);
+            if ( $result['errors']->get_error_code() )
+                throw new WPException($result['errors']);
+        // Update
+        } else {
+            // Don't accidently set our password to empty
+            if ( isset($this->user_pass) && trim($this->user_pass) == '' )
+                unset( $this->user_pass );
+        }
+    }
+
     public function save() {
+
+        $this->validate();
+
         // split the incoming data into stuff we can pass to wp_update_user and
         // stuff we have to add with update_user_meta
         $userdata = parse_user( $this->attributes );
@@ -356,15 +374,8 @@ class User extends Model {
 
         unset($usermeta['id']); // make sure we don't accidently save the id as meta
 
-        $userdata['user_login'] = preg_replace('/\s+/', '', sanitize_user( $userdata['nickname'], true ));
-
         // Create
         if ( empty($this->id) ) {
-            // Validate username and email
-            $result = wpmu_validate_user_signup($userdata['user_login'], $userdata['user_email']);
-            if ( $result['errors']->get_error_code() )
-                throw new WPException($result['errors']);
-
             // create the new user with all the basic data
             // wp_update_user has bugs that doesn't let you create a user with it
             // http://core.trac.wordpress.org/ticket/17009
@@ -379,10 +390,6 @@ class User extends Model {
 
         // Update
         } else {
-            // Don't accidently set our password to empty
-            if ( isset($userdata['user_pass']) && trim($userdata['user_pass']) == '' )
-                unset( $userdata['user_pass'] );
-
             // Check which data has changed
             $data_to_update = array_diff_assoc( $userdata, (array) get_userdata( $this->id ) );
 
