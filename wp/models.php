@@ -89,31 +89,28 @@ class Post extends Model {
         $data = $this->attributes;
 
         if ( ! empty($data['blogid']) ) {
-            $blogid = $data['blogid'];
+            $blogid =& $data['blogid'];
             unset( $data['blogid'] );
         } else $blogid = get_current_blog_id();
 
         if ( ! empty($data['post_meta']) ) {
-            $meta = $data['post_meta'];
+            $meta =& $data['post_meta'];
             unset( $data['post_meta'] );
         }
 
         if ( isset($data['post_format']) ) {
-            $post_format = $data['post_format'];
+            $post_format =& $data['post_format'];
             unset( $data['post_format'] );
         }
 
         if ( ! empty( $data['id'] ) ) {
-            $data['ID'] = $data['id'];
+            $data['ID'] =& $data['id'];
             unset($data['id']);
         }
 
         switch_to_blog( $blogid );
 
-        if ( empty( $data['ID'] ) )
-            $postid = wp_insert_post( $data, true );
-        else
-            $postid = wp_insert_post( $data, true );
+        $postid = wp_insert_post( $data, true );
 
         if ( is_wp_error( $postid ) )
             throw new Exception($postid->get_error_message());
@@ -131,14 +128,14 @@ class Post extends Model {
         restore_current_blog();
 
         $this->id = $postid;
-        $this->fetch();
+        $this->fetch(); // We refresh the post in case any filters changed the content
     }
 
     public function fetch() {
         if ( empty($this->attributes['blogid']) || empty($this->attributes['id']) )
             throw new BadMethodCallException("Need a blogid and post id to fetch a post");
         switch_to_blog( $this->attributes['blogid'] );
-        $post =& get_post( $this->attributes['id'] );
+        $post = get_post( $this->attributes['id'] );
         if ( $post === NULL ) {
             restore_current_blog();
             throw new ModelNotFound("Post", "Post not found");
@@ -148,13 +145,19 @@ class Post extends Model {
         restore_current_blog();
     }
 
-    public function parse( $postdata ) {
-        // Use the parent parse
+    public function parse( &$postdata ) {
+        # Use the parent parse
         $ret =& parent::parse( $postdata );
+
+        # gonna pick a case
+        if ( !empty($ret['ID']) ) {
+            $ret['id'] =& $ret['ID'];
+            unset($ret['ID']);
+        }
 
         # Take only the fields we need, put them in a temp array
         # TODO: current_blog may not be correct
-        $ret['blogid']    = get_current_blog_id();
+        $ret['blogid'] = get_current_blog_id();
 
         # Fill up the meta attribute with post meta
         $ret['post_meta'] = array();
@@ -163,16 +166,8 @@ class Post extends Model {
             foreach( $meta_keys as $key )
                 $ret['post_meta'][$key] = get_post_meta($ret['id'], $key, true);
 
-        # Add some special fields depending on the post type
-        switch($ret['post_type']) {
-            case 'attachment':
-                $ret['url'] = wp_get_attachment_url($ret['id']);
-                $ret['thumb_url'] = wp_get_attachment_thumb_url($ret['id']);
-                break;
-            case 'post':
-                $ret['post_format']  = get_post_format( $ret['id'] );
-                break;
-        }
+        if ( $ret['post_type'] == 'post' )
+            $ret['post_format'] = get_post_format( $ret['id'] );
 
         return $ret;
     }
@@ -211,20 +206,37 @@ class Post extends Model {
     }
 
     public function featured_image() {
-        return PostCollection::get(array(
-            'id' => $this->post_meta['_thumbnail_id'],
-            'blogid' => $this->blogid
-        ));
+        if ( !empty( $this->post_meta['_thumbnail_id'] ) )
+            return AttachmentCollection::get(array(
+                'id' => $this->post_meta['_thumbnail_id'],
+                'blogid' => $this->blogid
+            ));
+        else return null;
     }
 
-    public function attachments( $extra_query_args=array() ) {
-        $filter = array_merge( array(
-           'post_type' => 'attachment',
-           'posts_per_page' => -1,
-           'post_status' => 'any',
-           'post_parent' => $this->id
-        ), $extra_query_args);
-        return PostCollection::filter( $filter );
+    public function get_attachments() {
+        return AttachmentCollection::for_post( $this->id );
+    }
+
+    # TODO: optimize with SQL
+    public function clear_attachments() {
+        foreach ( $this->get_attachments() as $attachment ) {
+            $attachment->post_parent = null;
+            $attachment->menu_order = null;
+            $attachment->save();
+        }
+    }
+
+    public function set_attachments( $attachments ) {
+        $this->clear_attachments();
+        $menu_order = 0;
+        foreach ( $attachments as $attachment ) {
+            $attachment->post_parent = $this->id;
+            $attachment->menu_order = $menu_order;
+            $attachment->save();
+            $menu_order++;
+            if ( $menu_order > 10 ) break;
+        }
     }
 
     public function the_time($format = null) {
@@ -239,6 +251,10 @@ class Post extends Model {
             return mysql2date($format, $this->post_date);
         else
             return mysql2date(get_option('date_format'), $this->post_date);
+    }
+
+    public function the_content() {
+        return str_replace(']]>', ']]&gt;', apply_filters('the_content', $this->post_content) );
     }
 
     public function make_excerpt($more_text = null) {
@@ -288,16 +304,19 @@ class Post extends Model {
 class PostCollection extends Collection {
     public static $model = 'mtv\wp\models\Post';
 
+    public static $default_filter = array(
+        'post_type' => 'post',
+        'posts_per_page' => 10,
+        'order' => 'DESC',
+        'paged' => '1'
+    );
     public $wp_query;
 
-    public static function filter( $kwargs ) {
-        global $post;
-        $tmp_post = $post;
-
+    public static function filter( $args ) {
         $class = get_called_class();
 
         $ret = new $class();
-        $ret->wp_query = new WP_Query( $kwargs );
+        $ret->wp_query = new WP_Query( array_merge(static::$default_filter, $args) );
         $ret->wp_query->get_posts();
 
         foreach( $ret->wp_query->posts as $post ) {
@@ -311,10 +330,42 @@ class PostCollection extends Collection {
             }
         }
 
-        global $post;
-        $post = $tmp_post;
+        return $ret;
+    }
+}
+
+class Attachment extends Post {
+
+    public function parse( &$postdata ) {
+        # Use the parent parse
+        $ret =& parent::parse( $postdata );
+
+        # If this isn't an attachment, we haven't found what we're looking for
+        if ( $ret['post_type'] != "attachment" )
+            throw new ModelParseException("Post is not an attachment");
+
+        # Add some special fields depending on the post type
+        $ret['url'] = wp_get_attachment_url($ret['id']);
+        $ret['thumb_url'] = wp_get_attachment_thumb_url($ret['id']);
 
         return $ret;
+    }
+
+}
+
+class AttachmentCollection extends PostCollection {
+    public static $model = 'mtv\wp\models\Attachment';
+
+    public static $default_filter = array(
+        'post_type' => 'attachment',
+        'posts_per_page' => -1,
+        'post_status' => 'inherit',
+        'orderby' => 'menu_order',
+        'order' => 'ASC'
+    );
+
+    public static function for_post( $post_id ) {
+        return static::filter( array('post_parent' => $post_id) );
     }
 }
 
@@ -413,9 +464,15 @@ class User extends Model {
         $this->reload( get_userdata( $this->id ) );
     }
 
-    public function parse( $userdata ) {
+    public function parse( &$userdata ) {
         // Use the parent parse
-        $ret = parent::parse( $userdata );
+        $ret =& parent::parse( $userdata );
+
+        # gonna pick a case
+        if ( !empty($ret['ID']) ) {
+            $ret['id'] = $ret['ID'];
+            unset($ret['ID']);
+        }
 
         // get the html to display the users avatar
         $ret['avatar'] = get_avatar( $ret['id'] );
@@ -543,20 +600,20 @@ class Site extends Model {
         $this->reload( get_blog_details( $this->id ) );
     }
 
-    public function parse( $data ) {
-        // Make sure we have an array and not an object
-        if ( is_object($data) ) $data = (array) $data;
+    public function parse( &$data ) {
+        // Use the parent parse
+        $ret =& parent::parse( $data );
 
         // figure out where the id is
-        if ( !empty($data['userblog_id']) ) {
-            $data['id'] = $data['userblog_id'];
-            unset($data['userblog_id']);
-        } else if ( !empty($data['blog_id']) ) {
-            $data['id'] = $data['blog_id'];
-            unset($data['blog_id']);
+        if ( !empty($ret['userblog_id']) ) {
+            $ret['id'] =& $ret['userblog_id'];
+            unset($ret['userblog_id']);
+        } else if ( !empty($ret['blog_id']) ) {
+            $ret['id'] =& $ret['blog_id'];
+            unset($ret['blog_id']);
         }
 
-        return $data;
+        return $ret;
     }
 
 }
