@@ -410,6 +410,12 @@ class User extends Model {
         }
     }
 
+    public function register() {
+        $this->validate();
+
+        wpmu_signup_user($this->user_login, $this->user_email, $this->user_meta);
+    }
+
     public function save() {
 
         $this->validate();
@@ -531,6 +537,18 @@ class User extends Model {
 
         $user = new User;
         $user->reload( $result );
+        return $user;
+    }
+
+    public static function activate($key) {
+        $result = wpmu_activate_signup($key);
+
+        if (is_wp_error($result))
+            throw new WPException($result);
+
+        $collection = static::$collection;
+        $user = $collection::get(array('id' => $result['user_id']));
+
         return $user;
     }
 
