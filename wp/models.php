@@ -413,6 +413,8 @@ class User extends Model {
     public function register() {
         $this->validate();
 
+        $this->user_meta = array('user_pass' => wp_hash_password($this->user_pass));
+
         wpmu_signup_user($this->user_login, $this->user_email, $this->user_meta);
     }
 
@@ -541,7 +543,7 @@ class User extends Model {
     }
 
     public static function activate($key) {
-        $result = wpmu_activate_signup($key);
+        $result = activate_signup($key);
 
         if (is_wp_error($result))
             throw new WPException($result);
@@ -706,3 +708,49 @@ function parse_user( $userdata ) {
     return $userdata;
 }
 
+# activate user signup, avoid sending a second
+# email with username and password in plaintext.
+function activate_signup($key) {
+    global $wpdb;
+
+    $signup = $wpdb->get_row(
+        $wpdb->prepare("select * from $wpdb->signups where activation_key = %s", $key)
+    );
+
+    if (empty($signup))
+        return new WP_Error('invalid_key', 'Invalid activation key.');
+
+    if ($signup->active)
+        return new WP_Error('already_active', 'This account is already activated.', $signup );
+
+    $user_meta  = unserialize($signup->meta);
+    $user_login = $wpdb->escape($signup->user_login);
+    $user_email = $wpdb->escape($signup->user_email);
+    $user_pass  = $user_meta['user_pass'];
+    $user_id    = username_exists($user_login);
+
+    if (!$user_id)
+        $user_id = wpmu_create_user($user_login, wp_generate_password( 12, false ), $user_email);
+
+    if (!$user_id)
+        return new WP_Error('create_user', 'Could not create user', $signup);
+
+    $wpdb->update($wpdb->users, array(
+        'user_pass' => $user_pass,
+        'user_activation_key' => ''
+    ), array('ID' => $user_id));
+
+    $wpdb->update($wpdb->signups, array(
+        'active' => 1,
+        'activated' => current_time('mysql', true),
+        'meta' => ''
+    ), array('activation_key' => $key));
+
+    add_new_user_to_blog($user_id, $user_email, '');
+
+    return array(
+        'user_id' => $user_id,
+        'password' => $password,
+        'meta' => $meta
+    );
+}
