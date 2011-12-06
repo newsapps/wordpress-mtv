@@ -543,7 +543,7 @@ class User extends Model {
             // wp_set_current_user($result->ID);
         }
 
-        $user = new User;
+        $user = new static();
         $user->reload( $result );
         return $user;
     }
