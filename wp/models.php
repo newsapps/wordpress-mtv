@@ -413,7 +413,13 @@ class User extends Model {
     public function register() {
         $this->validate();
 
-        $this->user_meta = array('user_pass' => wp_hash_password($this->user_pass));
+        // split incoming data and keep the stuff we can pass to
+        // update_user_meta. Set the user's password as meta so that we don't
+        // haveto ask the user for it again after activation.
+        $this->user_meta = array_merge(
+            array_diff_assoc($this->attributes, parse_user($this->attributes)),
+            array('user_pass' => wp_hash_password($this->user_pass))
+        );
 
         wpmu_signup_user($this->user_login, $this->user_email, $this->user_meta);
     }
@@ -734,6 +740,13 @@ function activate_signup($key) {
 
     if (!$user_id)
         return new WP_Error('create_user', 'Could not create user', $signup);
+
+    // Be sure to unset the user pass because
+    // we don't want to store it as meta once
+    // the user is activated
+    unset($user_meta['user_pass']);
+    foreach ($user_meta as $k => $v)
+        update_user_meta($user_id, $k, $v);
 
     $wpdb->update($wpdb->users, array(
         'user_pass' => $user_pass,
