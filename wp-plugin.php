@@ -89,6 +89,8 @@ add_filter( 'query_vars', function( $vars ) {
 
 add_action( 'init', function() {
 
+    load_plugin_textdomain('mtv', false, basename(__DIR__) . '/locale/');
+
     /**
      * Is our chosen theme an MTV theme?
      * If not, we don't want to hijack rewrite rules and template selection

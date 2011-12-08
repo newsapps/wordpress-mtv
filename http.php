@@ -25,7 +25,7 @@ function urlresolver( $kwargs ) {
         $url = get_default($_REQUEST, 'url', '');
 
     if ( !isset($url_patterns) )
-        throw new BadFunctionCallException('url_patterns keyword argument required');
+        throw new BadFunctionCallException(__('url_patterns keyword argument required', 'mtv'));
 
     try {
 
@@ -69,7 +69,8 @@ function resolve($url, $url_patterns) {
             // we found a match!
 
             // Check to see if the function exists
-            if ( ! function_exists( $view ) ) throw new BadFunctionCallException("Can't find view function: $view");
+            if ( ! function_exists( $view ) ) throw new BadFunctionCallException(
+                sprintf(__("Can't find view function: %s", 'mtv'), $view));
 
             // pass the match array to the view function
             call_user_func( $view, array_slice($matches, 1) );
@@ -87,7 +88,7 @@ function include_urls_for($app_name) {
         include $registered_apps[$app_name]['urls'];
         return $url_patterns;
     } else
-        throw new Exception("MTV App $app_name has no urls.php");
+        throw new Exception(sprintf(__("MTV App %s has no urls.php", 'mtv'), $app_name));
 }
 
 class HttpException extends Exception {
@@ -189,7 +190,7 @@ class AjaxHttp404 extends HttpException {
     public function display_message() {
         $response = array(
             'exception' => $this,
-            'error'     => 'Callback not found',
+            'error'     => __('Callback not found', 'mtv'),
         );
         shortcuts\display_json($response);
     }
