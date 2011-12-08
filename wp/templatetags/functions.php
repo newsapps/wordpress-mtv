@@ -90,6 +90,7 @@ $twig->addFunction('get_home_url', new Twig_Function_Function('get_home_url'));
 $twig->addFunction('get_bloginfo', new Twig_Function_Function('get_bloginfo'));
 
 // Template functions
+$twig->addFunction('wp_title', new Twig_Function_Function('wp_title'));
 $twig->addFunction('wp_head', 
     new Twig_Function_Function('mtv\wp\templatetags\functions\get_wp_head', array('is_safe'=>array('html')))
 );
