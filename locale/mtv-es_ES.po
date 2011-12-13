@@ -44,32 +44,32 @@ msgstr ""
 
 #: wp/models.php:529
 msgid "Please enter your user name or email address."
-msgstr "Por favor"
+msgstr "Por favor ingresa tu nombre de usuario o dirección de correo electrónico"
 
 #: wp/models.php:531
 msgid "Please enter your password."
-msgstr ""
+msgstr "Por ravor ingresa tu contraseña"
 
 #: wp/models.php:584 wp/models.php:662
 msgid "I don't know that email address"
-msgstr ""
+msgstr "Correo electrónico no reconocido"
 
 #: wp/models.php:587
 msgid "I don't know that user name"
-msgstr ""
+msgstr "Usuario no reconocido"
 
 #: wp/models.php:665
 msgid "I don't know that username"
-msgstr ""
+msgstr "Usuario no reconocido"
 
 #: wp/models.php:727
 msgid "Invalid activation key."
-msgstr ""
+msgstr "Frase de activación invalida"
 
 #: wp/models.php:730
 msgid "This account is already activated."
-msgstr ""
+msgstr "Esta cuenta ya ha sido activada"
 
 #: wp/models.php:742
 msgid "Could not create user"
-msgstr ""
+msgstr "No pudimos crear el usuario"
