@@ -89,6 +89,8 @@ add_filter( 'query_vars', function( $vars ) {
 
 add_action( 'init', function() {
 
+    load_plugin_textdomain('mtv', false, basename(__DIR__) . '/locale/');
+
     /**
      * Is our chosen theme an MTV theme?
      * If not, we don't want to hijack rewrite rules and template selection
@@ -98,18 +100,37 @@ add_action( 'init', function() {
         return; // nope
 
     /**
+     * *_rewrite_rules
+     * Extra "permastruct" rules are run through this filter. Extra "permastruct" rules are added
+     * to $wp_rewrite->extra_rules_top and include rewrite rules for tags, categories, and post_formats.
+     * This only happens while generate_rewrite_rules runs. $wp_rewrite->extra_rules_top looks like
+     * it's typically used for 3rd party stuff, just not always.
+     *
+     * Anyway, it messes up our generate_rewrite_rules hook, so we have to prevent that stuff from
+     * getting added to $wp_rewrite->extra_rules_top
+     **/
+    global $wp_rewrite;
+    foreach ( array_keys( $wp_rewrite->extra_permastructs ) as $permastructname )
+        add_filter( $permastructname . '_rewrite_rules', function() { return array(); } );
+
+    /**
      * generate_rewrite_rules
      * Run immediately after WordPress generates it's rewrite rules. We'll replace all
      * the rules with one of ours. Our rule will route all requests into our url resolver.
      * We set this to run first so plugins can still add their own rules.
+     *
+     * P.S. $wp_rewrite is a object, so gets passed in by reference
      **/
     add_action( 'generate_rewrite_rules', function( $wp_rewrite ) {
-        // setup our hijack rule
-        $newrules = array();
-        $newrules['(.*)'] = 'index.php?path=$matches[1]';
+        # setup our hijack rule
+        $mtv_rules = array();
+        $mtv_rules['(.*)'] = 'index.php?path=$matches[1]';
 
-        // We're feeling adventurous, override wordpress' processing with ours
-        $wp_rewrite->rules = $newrules;
+        # We're feeling adventurous, override wordpress' processing with ours
+        # If we just relace $wp_rewrite->rules, we lose stuff added by other plugins
+        # we just want to replace WordPress's default builtin stuff
+        $wp_rewrite->rules = array_merge($wp_rewrite->extra_rules_top, $mtv_rules, $wp_rewrite->extra_rules);
+
     }, 1, 1);
 
     /**

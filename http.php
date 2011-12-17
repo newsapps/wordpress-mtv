@@ -25,7 +25,7 @@ function urlresolver( $kwargs ) {
         $url = get_default($_REQUEST, 'url', '');
 
     if ( !isset($url_patterns) )
-        throw new BadFunctionCallException('url_patterns keyword argument required');
+        throw new BadFunctionCallException(__('url_patterns keyword argument required', 'mtv'));
 
     try {
 
@@ -51,9 +51,9 @@ function urlresolver( $kwargs ) {
         ob_end_clean();
         // Somebody threw some sort of exception, so display 500
         if (defined('DOING_AJAX') && DOING_AJAX)
-            $http_ex = new AjaxHttp500($e->getMessage(), $e->getCode());
+            $http_ex = new AjaxHttp500($e->getMessage(), $e->getCode(), $e);
         else
-            $http_ex = new Http500($e->getMessage(), $e->getCode());
+            $http_ex = new Http500($e->getMessage(), $e->getCode(), $e);
 
         $http_ex->display();
     }
@@ -64,12 +64,13 @@ function urlresolver( $kwargs ) {
 function resolve($url, $url_patterns) {
     // cycle through our patterns in order to find a view to execute
     foreach ($url_patterns as $pattern => $view) {
-        if ( is_array( $view ) ) return resolve($url, $view);
+        if ( is_array( $view ) ) resolve($url, $view);
         else if ( preg_match($pattern, $url, $matches) > 0 ) {
             // we found a match!
 
             // Check to see if the function exists
-            if ( ! function_exists( $view ) ) throw new BadFunctionCallException("Can't find view function: $view");
+            if ( ! function_exists( $view ) ) throw new BadFunctionCallException(
+                sprintf(__("Can't find view function: %s", 'mtv'), $view));
 
             // pass the match array to the view function
             call_user_func( $view, array_slice($matches, 1) );
@@ -87,17 +88,16 @@ function include_urls_for($app_name) {
         include $registered_apps[$app_name]['urls'];
         return $url_patterns;
     } else
-        throw new Exception("MTV App $app_name has no urls.php");
+        throw new Exception(sprintf(__("MTV App %s has no urls.php", 'mtv'), $app_name));
 }
 
 class HttpException extends Exception {
     public $message = 'HTTP Error!';
-    public $code;
-    public $headers;
+    public $code = null;
     public $error_data;
 
-    public function __construct( $message=null, $error_data=null ) {
-        if ( ! empty($message) ) $this->message = $message;
+    public function __construct( $message=null, $error_data=null, $previous=null ) {
+        parent::__construct($message, $this->code, $previous);
         $this->error_data = $error_data;
     }
 
@@ -128,17 +128,20 @@ class Http404 extends HttpException {
         global $wp_query;
         $wp_query->is_404 = true;
 
+        if ( $this->getPrevious() )
+            $ex = $this->getPrevious();
+        else $ex = $this;
+
         shortcuts\set_query_flags('page');
         shortcuts\display_template(
             '404.html',
             array(
-                'message' => $this->message,
-                'data'    => $this->error_data,
-                'code'    => $this->code,
-                'globals' => $GLOBALS,
-                'post'    => $_POST,
-                'get'     => $_GET,
-                'server'  => $_SERVER
+                'exception_class' => get_class($ex),
+                'exception' => $ex,
+                'globals'   => $GLOBALS,
+                'post'      => $_POST,
+                'get'       => $_GET,
+                'server'    => $_SERVER
             )
         );
         exit;
@@ -150,16 +153,20 @@ class Http500 extends HttpException {
 
     public function display_message() {
         shortcuts\set_query_flags('page');
+
+        if ( $this->getPrevious() )
+            $ex = $this->getPrevious();
+        else $ex = $this;
+
         shortcuts\display_template(
             '500.html',
             array(
-                'message' => $this->message,
-                'data'    => $this->error_data,
-                'code'    => $this->code,
-                'globals' => $GLOBALS,
-                'post'    => $_POST,
-                'get'     => $_GET,
-                'server'  => $_SERVER
+                'exception_class' => get_class($ex),
+                'exception' => $ex,
+                'globals'   => $GLOBALS,
+                'post'      => $_POST,
+                'get'       => $_GET,
+                'server'    => $_SERVER
             )
         );
         exit;
@@ -170,8 +177,9 @@ class AjaxHttp500 extends HttpException {
     public $code = '500';
     public function display_message() {
         $response = array(
-            'error' => $this->message,
-            'data'  => $this->error_data
+            'error'     => $this->message,
+            'trace'     => $this->getTrace(),
+            'data'      => $this->error_data
         );
         shortcuts\display_json($response);
     }
@@ -181,7 +189,8 @@ class AjaxHttp404 extends HttpException {
     public $code = '404';
     public function display_message() {
         $response = array(
-            'error' => 'Callback not found',
+            'exception' => $this,
+            'error'     => __('Callback not found', 'mtv'),
         );
         shortcuts\display_json($response);
     }

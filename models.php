@@ -8,7 +8,14 @@
 
 namespace mtv\models;
 
-use Iterator, ArrayAccess, Countable, Exception, LogicException, BadMethodCallException, JsonableException;
+use Iterator,
+    ArrayAccess,
+    Countable,
+    Exception,
+    LogicException,
+    BadMethodCallException,
+    JsonableException,
+    NotImplementedException;
 use mtv\shortcuts;
 
 /**
@@ -38,26 +45,30 @@ class Model {
     // Attributes that have been changed since the last save or fetch
     protected $_previous_attributes = array();
 
-    public function __construct( $kwargs=array() ) {
-        $this->initialize( $kwargs );
+    public function __construct( $args=array() ) {
+        $this->initialize( $args );
         if ( empty($this->defaults) )
-            $this->set( $kwargs );
+            $this->set( $args );
         else
-            $this->set( array_merge($this->defaults, $kwargs) );
+            $this->set( array_merge($this->defaults, $args) );
     }
 
-    // Write the data in this model to permanent storage
-    public function save() {
-        throw new \NotImplementedException();
-    }
+    /**
+     * Write the data in this model to permanent storage
+     **/
+    public function save() { throw new NotImplementedException(); }
 
-    // Validate the data in this model
+    /**
+     * Validate the data in this model
+     **/
     public function validate() {
-        throw new \NotImplementedException();
+        throw new NotImplementedException();
     }
 
-    // Call initialize when the model is created
-    public function initialize( $kwargs ) {}
+    /**
+     * Call initialize when the model is created
+     **/
+    public function initialize( $args ) {}
 
     public function __toString() {
         return get_called_class();
@@ -79,7 +90,9 @@ class Model {
         return isset($this->attributes[$name]);
     }
 
-    // Delete all the attributes in this model
+    /**
+     * Delete all the attributes in this model
+     **/
     public function clear() {
         // TODO: update $this->_previous_attributes with removed items
         foreach ( func_get_args() as $arg ) {
@@ -88,38 +101,39 @@ class Model {
         }
     }
 
-    // Set a bunch of attributes at once
-    public function set( $kwargs, $fetching=false ) {
-        $this->attributes = array_merge( $this->attributes, (array) $kwargs );
+    /**
+     * Set a bunch of attributes at once
+     **/
+    public function set( $args, $fetching=false ) {
+        $this->attributes = array_merge( $this->attributes, (array) $args );
     }
 
-    // Populate this model from permanent storage
+    /**
+     * Populate this model from permanent storage
+     **/
     public function fetch() {
         // get my attributes from the db
         // $from_db = new Object;
         // pass the results to reload
         // $this->reload( $from_db );
-        throw new \NotImplementedException();
+        throw new NotImplementedException();
     }
 
     /**
-     * parse
      * Process the raw data from permanent storage
      **/
-    public function parse( $data ) {
+    public function parse( &$data ) {
         // Make sure we have an array and not an object
-        if ( is_object($data) ) $data = (array) $data;
-
-        if ( !empty($data['ID']) ) {
-            $data['id'] = $data['ID'];
-            unset($data['ID']);
-        }
-
-        return $data;
+        if ( is_object($data) )
+            return (array) $data;
+        else
+            return $data;
     }
 
-    // Update this model with data from permanent storage
-    public function reload( $data ) {
+    /**
+     * Update this model with data from permanent storage
+     **/
+    public function reload( &$data ) {
         // Parse raw data from the DB
         $tmp =& $this->parse($data);
 
@@ -131,7 +145,21 @@ class Model {
         $this->set( $tmp, true );
     }
 
-    // Returns an assoc array of this model's data to send over the wire
+    /**
+     * Returns an array of selected values
+     * TODO: Return all values if no params are given
+     **/
+    public function values(/* $key [,$key [,$key ...] ] */) {
+        $keys = func_get_args();
+        $ret = array();
+        foreach ( $keys as $key )
+            $ret[] = $this->$key;
+        return $ret;
+    }
+
+    /**
+     * Returns an assoc array of this model's data to send over the wire
+     **/
     public function to_json() {
         // decide which fields to send over the wire
         if ( empty( $this->json_fields ) )
@@ -145,18 +173,22 @@ class Model {
         }
     }
 
-    // Create a new model from json data sent over the wire
-    public static function from_json( $data ) {
+    /**
+     * Create a new model from json data sent over the wire
+     **/
+    public static function from_json( &$data ) {
         $class = get_called_class();
         $obj = new $class;
         $obj->set_from_json($data);
         return $obj;
     }
 
-    // Update this model from json data sent over the wire
-    public function set_from_json( $data ) {
+    /**
+     * Update this model from json data sent over the wire
+     **/
+    public function set_from_json( &$data ) {
         // decide which fields to use from the wire
-        $new_data = (array) json_decode( stripslashes( $data ) );
+        $new_data = (array) json_decode( stripslashes( $data ), true );
         if ( empty( $this->editable_json_fields ) )
             $this->set( $new_data );
         else {
@@ -171,14 +203,17 @@ class Model {
 class Collection implements Iterator, ArrayAccess, Countable {
     public $models = array();
     public static $model  = 'mtv\models\Model';
+    public static $default_filter = array();
 
     public function __construct( $array=array() ) {
-        foreach ( $array as $kwargs ) {
-            array_push( $this->models, new static::$model( $kwargs ) );
+        foreach ( $array as $args ) {
+            array_push( $this->models, new static::$model( $args ) );
         }
     }
 
-    // Iterator interface
+    /**
+     * Makes a collection iterable like an array
+     **/
     public function current() {
         return current( $this->models );
     }
@@ -188,12 +223,18 @@ class Collection implements Iterator, ArrayAccess, Countable {
     public function key() {
         return key( $this->models);
     }
-    public function valid() {}
+    public function valid() {
+        $key = key( $this->models );
+        return ($key !== NULL && $key !== FALSE);
+    }
     public function rewind() {
-        return prev( $this->models );
+        reset( $this->models );
     }
 
-    // ArrayAccess interface
+    /**
+     * ArrayAccess interface
+     * Makes a collection object addressable like an array
+     **/
     public function offsetExists( $offset ) {
         return isset( $this->models[$offset] );
     }
@@ -208,21 +249,47 @@ class Collection implements Iterator, ArrayAccess, Countable {
         unset($this->models[$offset]);
     }
 
-    // Countable interface
+    /**
+     * Countable interface
+     * Makes `count($collection)` work
+     **/
     public function count() {
         return count($this->models);
     }
 
-    // Collection methods
+    /**
+     * Add a model instance to this collection
+     **/
     public function add( $model ) {
         $this->models[] =& $model;
-        // array_push( $this->models, $model );
     }
 
+    /**
+     * Remove all model instances from this collection
+     **/
     public function clear() {
         $this->models = array();
     }
 
+    /**
+     * Return specific values from all the model instances in this collection
+     * TODO: Return all values if no params are given
+     **/
+    public function values(/* $key [,$key [,$key ...] ] */) {
+        $keys = func_get_args();
+        $ret = array();
+        foreach ( $this->models as $model ) {
+            $row = array();
+            foreach ( $keys as $key )
+                $row[] = $model->$key;
+            $ret[] = $row;
+        }
+        return $ret;
+    }
+
+    /**
+     * Return the results of calling `to_json` on all the model instances in this collection
+     **/
     public function to_json() {
         $tmp_array = array();
         foreach ($this->models as $model) {
@@ -231,14 +298,31 @@ class Collection implements Iterator, ArrayAccess, Countable {
         return $tmp_array;
     }
 
-    public static function get( $kwargs ) {
-        $model = new static::$model( $kwargs );
+    /**
+     * Create, fetch and return a single model instance with primary keys
+     **/
+    public static function get( $args ) {
+        $model = new static::$model( $args );
         $model->fetch();
         return $model;
     }
 
-    public static function get_by( $kwargs ) { throw new \NotImplementedException(); }
-    public static function filter( $kwargs ) { throw new \NotImplementedException(); }
+    /**
+     * Create, fetch and return a single model instances based on some unique keys
+     **/
+    public static function get_by( $args ) { throw new NotImplementedException(); }
+
+    /**
+     * Return a collection containing all model instances
+     **/
+    public static function all() {
+        return static::filter(array());
+    }
+
+    /**
+     * Return a collection containing model instances matching certian criteria
+     **/
+    public static function filter( $args ) { throw new NotImplementedException(); }
 }
 
 /**
