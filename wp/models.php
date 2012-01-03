@@ -320,7 +320,9 @@ class PostCollection extends Collection {
         $ret->wp_query->get_posts();
 
         foreach( $ret->wp_query->posts as $post ) {
+            
             $p = new static::$model();
+
             try {
                 $p->reload($post);
                 $ret->add($p);
@@ -332,6 +334,16 @@ class PostCollection extends Collection {
 
         return $ret;
     }
+}
+
+class PageCollection extends PostCollection {
+    public static $default_filter = array(
+        'post_type' => 'page',
+        'posts_per_page' => -1,
+        'post_status' => 'inherit',
+        'orderby' => 'menu_order',
+        'order' => 'ASC'
+    );
 }
 
 class Attachment extends Post {
