@@ -736,10 +736,10 @@ function activate_signup($key) {
     );
 
     if (empty($signup))
-        return new WP_Error('invalid_key', __('Invalid activation key.'));
+        return new \WP_Error('invalid_key', __('Invalid activation key.'));
 
     if ($signup->active)
-        return new WP_Error('already_active', __('This account is already activated.'), $signup );
+        return new \WP_Error('already_active', __('This account is already activated.'), $signup );
 
     $user_meta  = unserialize($signup->meta);
     $user_login = $wpdb->escape($signup->user_login);
@@ -751,7 +751,7 @@ function activate_signup($key) {
         $user_id = wpmu_create_user($user_login, wp_generate_password( 12, false ), $user_email);
 
     if (!$user_id)
-        return new WP_Error('create_user', __('Could not create user'), $signup);
+        return new \WP_Error('create_user', __('Could not create user'), $signup);
 
     // Be sure to unset the user pass because
     // we don't want to store it as meta once
