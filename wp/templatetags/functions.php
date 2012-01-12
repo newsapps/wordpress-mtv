@@ -137,9 +137,9 @@ function get_wp_footer() {
     return $ret;
 }
 
-function get_body_class() {
+function get_body_class( $extra_classes=null ) {
     ob_start();
-    body_class();
+    body_class( $extra_classes );
     $ret = ob_get_contents();
     ob_end_clean();
     return $ret;
