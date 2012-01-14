@@ -74,9 +74,13 @@ function load( $apps ) {
         if ( DEPLOYMENT_TARGET == "development" ) {
             $twig = new Twig_Environment($loader, array('debug' => true));
         } else {
+            $cache_dir = '/tmp/mtv_tmpl_cache';
+            if ( ini_get('safe_mode') ) {
+                $cache_dir = __DIR__.'/tmp/mtv_tmpl_cache';
+            }
             # TODO: get a temp directory from php to use for caching
             $twig = new Twig_Environment($loader, array(
-                'cache' => '/tmp/mtv_tmpl_cache',
+                'cache' => $cache_dir,
                 'auto_reload' => true
             ));
         }
