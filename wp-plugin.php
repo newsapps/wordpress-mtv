@@ -122,8 +122,9 @@ add_action( 'init', function() {
      * P.S. $wp_rewrite is a object, so gets passed in by reference
      **/
     add_action( 'generate_rewrite_rules', function( $wp_rewrite ) {
-        # setup our hijack rule
+        # setup our hijack rules
         $mtv_rules = array();
+        $mtv_rules['$'] = 'index.php?path'; // Fix WP 3.3 home rewrite rule
         $mtv_rules['(.*)'] = 'index.php?path=$matches[1]';
 
         # We're feeling adventurous, override wordpress' processing with ours
