@@ -113,22 +113,30 @@ class Post extends Model {
         $postid = wp_insert_post( $data, true );
 
         if ( is_wp_error( $postid ) )
-            throw new Exception($postid->get_error_message());
+            throw new WPException( $postid );
         else if ( $postid == 0 )
-            throw new Exception(__("Couldn't update the post"));
+            throw new JsonableException(__("Couldn't update the post"));
 
         if ( ! empty( $meta ) ) {
             foreach ( $meta as $key => $val ) 
                 update_post_meta( $postid, $key, $val );
         }
 
-        if ( isset($post_format) )
-            set_post_format( $postid, $post_format );
+        if ( isset($post_format) ) {
+            $result = set_post_format( $postid, $post_format );
+            if ( is_wp_error( $result ) )
+                throw new WPException( $result );
+        }
 
         restore_current_blog();
 
         $this->id = $postid;
         $this->fetch(); // We refresh the post in case any filters changed the content
+
+        # TODO: WordPress seems to cache the post format and will give us
+        # a stale value when we fetch
+        if ( isset($post_format) )
+            $this->post_format = $post_format;
     }
 
     public function fetch() {
