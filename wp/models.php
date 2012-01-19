@@ -328,7 +328,7 @@ class PostCollection extends Collection {
         $ret->wp_query->get_posts();
 
         foreach( $ret->wp_query->posts as $post ) {
-            
+
             $p = new static::$model();
 
             try {
@@ -341,6 +341,16 @@ class PostCollection extends Collection {
         }
 
         return $ret;
+    }
+
+    /**
+     * Make this collection's wp_query the magical global
+     * WordPress one. This should make a bunch of native WP
+     * stuff work.
+     **/
+    public function globalize_wp_query() {
+        $GLOBALS['wp_the_query'] = $this->wp_query;
+        wp_reset_query();
     }
 }
 
