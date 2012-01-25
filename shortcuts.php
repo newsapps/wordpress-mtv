@@ -106,6 +106,9 @@ function set_query_flags($views=null) {
 
     foreach ($views as $view) {
         switch ($view) {
+            case '404':
+                $wp_query->is_404 = true;
+                break;
             case 'home':
                 $wp_query->is_home = true;
                 break;
