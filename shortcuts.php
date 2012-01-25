@@ -79,12 +79,12 @@ function require_capability($cap, $kwargs=null) {
  *  $wp_query->is_admin
  *  $wp_query->is_attachment
  *  $wp_query->is_singular
+ *  $wp_query->is_404
 
  *  No case implemented for these yet:
  *  $wp_query->is_feed
  *  $wp_query->is_comment_feed
  *  $wp_query->is_trackback
- *  $wp_query->is_404
  *  $wp_query->is_comments_popup
  *  $wp_query->is_robots
  *  $wp_query->is_posts_page
