@@ -60,8 +60,10 @@ $handle_ajax = function() {
         include get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php';
     else if ( file_exists( get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
         include get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php';
+    else if ( ! empty( $GLOBALS['ajax_url_patterns'] ) )
+        global $ajax_url_patterns;
     else
-        throw Exception("Can't find a urls.php file in your theme");
+        throw new Exception("Can't find a urls.php file in your theme");
 
     // whatever is in the $apps global is what we're going to load
     global $apps;
