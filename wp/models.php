@@ -243,7 +243,6 @@ class Post extends Model {
             $attachment->menu_order = $menu_order;
             $attachment->save();
             $menu_order++;
-            if ( $menu_order > 10 ) break;
         }
     }
 
