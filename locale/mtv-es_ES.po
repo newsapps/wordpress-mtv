@@ -48,7 +48,7 @@ msgstr "Por favor ingresa tu nombre de usuario o dirección de correo electróni
 
 #: wp/models.php:531
 msgid "Please enter your password."
-msgstr "Por ravor ingresa tu contraseña"
+msgstr "Por favor ingresa tu contraseña"
 
 #: wp/models.php:584 wp/models.php:662
 msgid "I don't know that email address"
