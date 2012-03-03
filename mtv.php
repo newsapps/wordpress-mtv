@@ -4,9 +4,11 @@ namespace mtv;
 
 require 'Twig/Autoloader.php';
 
-use Twig_Autoloader, Twig_Environment, Twig_Loader_Filesystem;
-
-use mtv\http;
+use Twig_Autoloader,
+    Twig_Environment,
+    Twig_Loader_Filesystem,
+    Exception,
+    mtv\http;
 
 define("MTV_VERSION", "1.0.0");
 
@@ -84,7 +86,8 @@ function load( $apps ) {
                 'auto_reload' => true
             ));
         }
-    }
+    } else
+        throw new Exception("MTV is already loaded!");
 
     # now that we have a template engine, load some goodies
     foreach ( $apps as $name ) {
