@@ -100,10 +100,11 @@ function load( $apps ) {
  * run MTV
  * Takes:
  *   $url - url to run on, probably $_REQUEST['path'] or something
- *   $url_patterns - url regexes and functions to pass them to
  *   $apps - MTV apps to load. Apps must be registered. Loads in order.
  **/
 function run( $kwargs ) {
+    global $registered_apps;
+
     extract( $kwargs );
 
     load( $apps );
@@ -112,8 +113,20 @@ function run( $kwargs ) {
     if ( ! $url )
         $url = $_REQUEST['path'];
 
+    $all_url_patterns = array();
+    foreach ( $apps as $name ) {
+        $app = $registered_apps[$name];
+        if ( $app['urls'] ) include_once $app['urls'];
+        if (is_array($url_patterns)) {
+            $all_url_patterns = array_merge($all_url_patterns, $url_patterns);
+        }
+    }
+
+    var_dump($all_url_patterns);
+    exit;
+
     # globalize our $url_patterns
-    if ( $url_patterns ) $GLOBALS['url_patterns'] = $url_patterns;
+    $GLOBALS['url_patterns'] = $all_url_patterns;
 
     # oh, right, we gotta do something with our url
     http\urlresolver( array('url'=>$url, 'url_patterns'=>$url_patterns) );

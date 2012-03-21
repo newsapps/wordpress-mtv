@@ -55,13 +55,6 @@ unset($js_runtime_settings);
  * Use the URL resolver for ajax calls
  **/
 $handle_ajax = function() {
-    // get the url patterns for the current theme
-    if ( file_exists( get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
-        include get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php';
-    else if ( file_exists( get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
-        include get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php';
-    else
-        throw Exception("Can't find a urls.php file in your theme");
 
     // whatever is in the $apps global is what we're going to load
     global $apps;
@@ -69,7 +62,6 @@ $handle_ajax = function() {
     // run MTV
     mtv\run( array(
         'url' => get_default( $_REQUEST, 'path', '' ),
-        'url_patterns' => $ajax_url_patterns,
         'apps' => $apps ) );
 
     // That's all folks
@@ -163,21 +155,12 @@ add_action( 'init', function() {
             // reset wp_query's is_whatever flags and posts
             shortcuts\reset_wp_query();
 
-            // get the url patterns for the current theme
-            if ( file_exists( get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
-                include get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php';
-            else if ( file_exists( get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
-                include get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php';
-            else
-                throw new Exception("Can't find a urls.php file in your theme");
-
             // whatever is in the $apps global is what we're going to load
             global $apps;
 
             // run MTV
             mtv\run( array(
                 'url' => $wp_query->query_vars['path'],
-                'url_patterns' => $url_patterns,
                 'apps' => $apps ) );
 
             // That's all folks
