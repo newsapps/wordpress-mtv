@@ -122,9 +122,6 @@ function run( $kwargs ) {
         }
     }
 
-    var_dump($all_url_patterns);
-    exit;
-
     # globalize our $url_patterns
     $GLOBALS['url_patterns'] = $all_url_patterns;
 
