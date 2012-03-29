@@ -115,7 +115,7 @@ class Post extends Model {
         if ( is_wp_error( $postid ) )
             throw new WPException( $postid );
         else if ( $postid == 0 )
-            throw new JsonableException(__("Couldn't update the post"));
+            throw new JsonableException(__("Couldn't update the post", 'mtv'));
 
         if ( ! empty( $meta ) ) {
             foreach ( $meta as $key => $val ) 
@@ -141,12 +141,12 @@ class Post extends Model {
 
     public function fetch() {
         if ( empty($this->attributes['blogid']) || empty($this->attributes['id']) )
-            throw new BadMethodCallException(__("Need a blogid and post id to fetch a post"));
+            throw new BadMethodCallException(__("Need a blogid and post id to fetch a post", 'mtv'));
         switch_to_blog( $this->attributes['blogid'] );
         $post = get_post( $this->attributes['id'] );
         if ( $post === NULL ) {
             restore_current_blog();
-            throw new ModelNotFound("Post", __("Post not found"));
+            throw new ModelNotFound("Post", __("Post not found", 'mtv'));
         }
         $this->reload( $post );
 
@@ -243,7 +243,6 @@ class Post extends Model {
             $attachment->menu_order = $menu_order;
             $attachment->save();
             $menu_order++;
-            if ( $menu_order > 10 ) break;
         }
     }
 
@@ -372,7 +371,7 @@ class Attachment extends Post {
 
         # If this isn't an attachment, we haven't found what we're looking for
         if ( $ret['post_type'] != "attachment" )
-            throw new ModelParseException(__("Post is not an attachment"));
+            throw new ModelParseException(__("Post is not an attachment", 'mtv'));
 
         # Add some special fields depending on the post type
         $ret['url'] = wp_get_attachment_url($ret['id']);
@@ -556,9 +555,9 @@ class User extends Model {
             $collection = static::$collection;
             $user = $collection::get_by( array( 'user_email' => $kwargs['user_email'] ) );
             $creds['user_login'] = $user->user_login;
-        } else throw new JsonableException(__("Please enter your user name or email address."));
+        } else throw new JsonableException(__("Please enter your user name or email address.", 'mtv'));
 
-        if ( empty( $kwargs['user_pass'] ) ) throw new JsonableException(__('Please enter your password.'));
+        if ( empty( $kwargs['user_pass'] ) ) throw new JsonableException(__('Please enter your password.', 'mtv'));
 
         $creds['user_password'] = $kwargs['user_pass'];
 
@@ -611,10 +610,10 @@ class UserCollection extends Collection {
     public static function get_by( $kwargs ) {
         if ( isset($kwargs['user_email']) ) {
             $userid = get_user_id_from_string($kwargs['user_email']);
-            if ( $userid === 0 ) throw new JsonableException(__("I don't know that email address"));
+            if ( $userid === 0 ) throw new JsonableException(__("I don't know that email address", 'mtv'));
         } else if ( isset($kwargs['user_login']) ) {
             $userid = get_user_id_from_string($kwargs['user_login']);
-            if ( $userid === 0 ) throw new JsonableException(__("I don't know that user name"));
+            if ( $userid === 0 ) throw new JsonableException(__("I don't know that user name", 'mtv'));
         } else throw new NotImplementedException();
 
         $user = new static::$model( array( 'id'=>$userid ) );
@@ -689,10 +688,10 @@ class SiteCollection extends Collection {
             $userid = $kwargs['user_id'];
         } else if ( isset($kwargs['user_email']) ) {
             $userid = get_user_id_from_string($kwargs['user_email']);
-            if ( $userid === 0 ) throw new JsonableException(__("I don't know that email address"));
+            if ( $userid === 0 ) throw new JsonableException(__("I don't know that email address", 'mtv'));
         } else if ( isset($kwargs['user_login']) ) {
             $userid = get_user_id_from_string($kwargs['user_login']);
-            if ( $userid === 0 ) throw new JsonableException(__("I don't know that username"));
+            if ( $userid === 0 ) throw new JsonableException(__("I don't know that username", 'mtv'));
         } else throw new NotImplementedException();
 
         $class = get_called_class();
@@ -754,10 +753,10 @@ function activate_signup($key) {
     );
 
     if (empty($signup))
-        return new \WP_Error('invalid_key', __('Invalid activation key.'));
+        return new \WP_Error('invalid_key', __('Invalid activation key.', 'mtv'));
 
     if ($signup->active)
-        return new \WP_Error('already_active', __('This account is already activated.'), $signup );
+        return new \WP_Error('already_active', __('This account is already activated.', 'mtv'), $signup );
 
     $user_meta  = unserialize($signup->meta);
     $user_login = $wpdb->escape($signup->user_login);
@@ -769,7 +768,7 @@ function activate_signup($key) {
         $user_id = wpmu_create_user($user_login, wp_generate_password( 12, false ), $user_email);
 
     if (!$user_id)
-        return new \WP_Error('create_user', __('Could not create user'), $signup);
+        return new \WP_Error('create_user', __('Could not create user', 'mtv'), $signup);
 
     // Be sure to unset the user pass because
     // we don't want to store it as meta once

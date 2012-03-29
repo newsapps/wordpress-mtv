@@ -132,7 +132,7 @@ class Http404 extends HttpException {
             $ex = $this->getPrevious();
         else $ex = $this;
 
-        shortcuts\set_query_flags('page');
+        shortcuts\set_query_flags(array('page', '404'));
         shortcuts\display_template(
             '404.html',
             array(
