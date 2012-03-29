@@ -10,12 +10,15 @@ use mtv\http\Http404;
 use mtv\http\Http500;
 use mtv\http\AjaxHttp500;
 use mtv\models\wp\PostCollection;
+use Exception;
 
 /**
  * Render and display a template
  **/
 function display_template( $template_name, $context=array() ) {
     global $twig;
+
+    if ( !is_object($twig) ) throw new Exception('Twig template engine not available');
 
     $template = $twig->loadTemplate( $template_name );
     $template->display( $context );
@@ -26,6 +29,8 @@ function display_template( $template_name, $context=array() ) {
  **/
 function render( $template_name, $context=array() ) {
     global $twig;
+
+    if ( !is_object($twig) ) throw new Exception('Twig template engine not available');
 
     $template = $twig->loadTemplate( $template_name );
     return $template->render( $context );
