@@ -54,6 +54,8 @@ function register_app( $name, $path ) {
 function load( $apps ) {
     global $registered_apps;
 
+    if ( empty($apps) ) throw new Exception( "No apps have been specified" );
+
     # load our models, views and templates
     $template_dirs = array();
     foreach ( $apps as $name ) {
