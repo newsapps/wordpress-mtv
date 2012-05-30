@@ -19,7 +19,6 @@ use mtv\models\Model,
  * Wordpress models
  **/
 
-
 /**
  * Post Model
  *
@@ -588,6 +587,12 @@ class User extends Model {
 
         return $user;
     }
+
+
+    public function get_avatar() {
+        return get_avatar( $this->id );
+    }
+
 
     /**
      * sites
