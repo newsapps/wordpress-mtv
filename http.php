@@ -62,10 +62,11 @@ function urlresolver( $kwargs ) {
 }
 
 function resolve($url, $url_patterns) {
+    // collapse multidimensional $url_patterns
+    $url_patterns = collapse_urls($url_patterns);
     // cycle through our patterns in order to find a view to execute
     foreach ($url_patterns as $pattern => $view) {
-        if ( is_array( $view ) ) resolve($url, $view);
-        else if ( preg_match($pattern, $url, $matches) > 0 ) {
+        if ( preg_match($pattern, $url, $matches) > 0 ) {
             // we found a match!
 
             // Check to see if the function exists
@@ -78,7 +79,6 @@ function resolve($url, $url_patterns) {
         }
     }
     return false;
-
 }
 
 function include_urls_for($app_name) {
@@ -89,6 +89,15 @@ function include_urls_for($app_name) {
         return $url_patterns;
     } else
         throw new Exception(sprintf(__("MTV App %s has no urls.php", 'mtv'), $app_name));
+}
+
+function collapse_urls($array) {
+    $collapse = array();
+    array_walk_recursive($array, function($value, $key) use (&$collapse) {
+        if ( !array_key_exists($key, $collapse) )
+            $collapse[$key] = $value;
+    });
+    return $collapse;
 }
 
 class HttpException extends Exception {
