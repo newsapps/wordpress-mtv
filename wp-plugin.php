@@ -65,14 +65,9 @@ $handle_ajax = function() {
     else
         throw new Exception("Can't find a urls.php file in your theme");
 
-    // whatever is in the $apps global is what we're going to load
-    global $apps;
-
-    // run MTV
-    mtv\run( array(
-        'url' => get_default( $_REQUEST, 'path', '' ),
-        'url_patterns' => $ajax_url_patterns,
-        'apps' => $apps ) );
+    // Since we're doing ajax, we've already loaded $registered_apps in
+    // our init callback and only need to resolve the url
+    \mtv\http\resolve(get_default( $_REQUEST, 'path', ''), $ajax_url_patterns);
 
     // That's all folks
     exit;
@@ -186,4 +181,14 @@ add_action( 'init', function() {
             exit;
         }
     });
-});
+
+    /**
+     * If we're doing ajax, load MTV here in the init callback so
+     * that it will be available throughout the request
+     **/
+    if ( is_admin() && defined('DOING_AJAX') && DOING_AJAX == true ) {
+        if ( !empty( $GLOBALS['apps'] ) )
+            mtv\load( $GLOBALS['apps'] );
+    }
+
+}, 999);
