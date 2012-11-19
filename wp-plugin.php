@@ -67,7 +67,9 @@ $handle_ajax = function() {
 
     // Since we're doing ajax, we've already loaded $registered_apps in
     // our init callback and only need to resolve the url
-    \mtv\http\resolve(get_default( $_REQUEST, 'path', ''), $ajax_url_patterns);
+    \mtv\http\urlresolver(array(
+        'url' => get_default( $_REQUEST, 'path', ''),
+        'url_patterns' => $ajax_url_patterns));
 
     // That's all folks
     exit;
