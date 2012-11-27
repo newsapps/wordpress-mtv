@@ -37,6 +37,8 @@ class Model {
     public $json_fields          = array();
     // Attributes that can be updated over the wire
     public $editable_json_fields = array();
+    // WP Object Cache groups this model is associated with
+    public $cache_groups         = array();
 
     public static $collection = 'mtv\models\Collection';
 

@@ -80,6 +80,10 @@ use mtv\models\Model,
  *     Returns a generated excerpt. Simliar to how WordPress makes excerpts in The Loop.
  **/
 class Post extends Model {
+
+    public $cache_groups =  array(
+        'posts', 'post_meta', 'post_ancestors', 'post_format_relationships');
+
     public function __toString() {
         return $this->attributes['post_title'];
     }
@@ -130,12 +134,12 @@ class Post extends Model {
         restore_current_blog();
 
         $this->id = $postid;
-        $this->fetch(); // We refresh the post in case any filters changed the content
 
-        # TODO: WordPress seems to cache the post format and will give us
-        # a stale value when we fetch
-        if ( isset($post_format) )
-            $this->post_format = $post_format;
+        # Invalidate cached data for this Post
+        foreach ( $this->cache_groups as $cache_group )
+            wp_cache_delete($this->id, $cache_group);
+
+        $this->fetch(); // We refresh the post in case any filters changed the content
     }
 
     public function fetch() {
