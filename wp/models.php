@@ -488,7 +488,9 @@ class User extends Model {
         // Update
         } else {
             // Check which data has changed
-            $data_to_update = array_diff_assoc( $userdata, (array) get_userdata( $this->id ) );
+            $data_to_diff = get_userdata( $this->id );
+            $data_to_update = array_diff_assoc(
+                $userdata, (array) $data_to_diff->data );
 
             // If we don't have any changes, we don't have to update!
             if ( empty( $data_to_update ) ) $userdata = false;
@@ -514,14 +516,28 @@ class User extends Model {
     }
 
     public function fetch() {
-        $this->reload( get_userdata( $this->id ) );
+        // Get userdata (this is a WP_User object in WP 3.3+)
+        $user = get_userdata( $this->id );
+        $userdata = (array) $user->data;
+
+        // Fetch all user meta, flatten the returned array
+        $usermeta = array_map(
+            function($x) { return $x[0]; }, get_user_meta( $this->id ));
+
+        // Set value for each user meta key not in userdata
+        foreach ( $usermeta as $k => $v ) {
+            if ( !in_array($k, array_keys($userdata)) )
+                $userdata[$k] = $v;
+        }
+
+        $this->reload( $userdata );
     }
 
     public function parse( &$userdata ) {
         // Use the parent parse
         $ret =& parent::parse( $userdata );
 
-        # gonna pick a case
+        // Pick a case for the id attribute
         if ( !empty($ret['ID']) ) {
             $ret['id'] = $ret['ID'];
             unset($ret['ID']);
@@ -530,16 +546,19 @@ class User extends Model {
         // get the html to display the users avatar
         $ret['avatar'] = get_avatar( $ret['id'] );
 
-        // get the capabilities into a usable format
+        // Get user capabilities for each blog in the network
+        global $wpdb;
+        $blogs = $wpdb->get_col(
+            $wpdb->prepare("select blog_id from $wpdb->blogs"));
+
         $ret['capabilities'] = array();
-        foreach ( $ret as $k => $v ) {
-            if ( $k == 'wp_capabilities' ) {
-                $ret['capabilities']['1'] = implode(array_keys($ret[$k]));
-                unset($ret[$k]);
-            } else if ( preg_match('/wp_(\d+)_capabilities/', $k, $matches) ) {
-                $ret['capabilities'][$matches[1]] = implode(array_keys($ret[$k]));
-                unset($ret[$k]);
-            }
+        foreach ( $blogs as $k => $v ) {
+            if ( $k == 0 )
+                $ret['capabilities'][$v] = get_user_meta(
+                    $ret['id'], 'wp_capabilities', true);
+            else
+                $ret['capabilities'][$v] = get_user_meta(
+                    $ret['id'], 'wp_' . $v . '_capabilities', true );
         }
 
         return $ret;
@@ -575,8 +594,8 @@ class User extends Model {
             // wp_set_current_user($result->ID);
         }
 
-        $user = new static();
-        $user->reload( $result );
+        $user = new static( array('id' => $result->ID) );
+        $user->fetch();
         return $user;
     }
 
