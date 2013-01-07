@@ -548,8 +548,7 @@ class User extends Model {
 
         // Get user capabilities for each blog in the network
         global $wpdb;
-        $blogs = $wpdb->get_col(
-            $wpdb->prepare("select blog_id from $wpdb->blogs"));
+        $blogs = $wpdb->get_col("select blog_id from $wpdb->blogs");
 
         $ret['capabilities'] = array();
         foreach ( $blogs as $k => $v ) {
