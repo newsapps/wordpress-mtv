@@ -205,7 +205,16 @@ class Post extends Model {
     }
 
     public function permalink() {
-        return get_permalink($this->id);
+        if ( get_current_blog_id() !== $this->blogid ) {
+            switch_to_blog($this->blogid);
+
+            $permalink = get_permalink($this->id);
+
+            restore_current_blog();
+
+            return $permalink;
+        } else
+            return get_permalink($this->id);
     }
 
     public function categories() {
