@@ -564,11 +564,11 @@ class User extends Model {
             if ( $k == 0 ) {
                 $_caps = get_user_meta($ret['id'], 'wp_capabilities', true);
                 if ( !empty($_caps) )
-                    $ret['capabilities'][$v] = array_shift(array_keys(maybe_unserialize($_caps)));
+                    $ret['capabilities'][$v] = array_shift(array_keys((array) maybe_unserialize($_caps)));
             } else {
                 $_caps = get_user_meta($ret['id'], 'wp_' . $v . '_capabilities', true );
                 if ( !empty($_caps) )
-                    $ret['capabilities'][$v] = array_shift(array_keys(maybe_unserialize($_caps)));
+                    $ret['capabilities'][$v] = array_shift(array_keys((array) maybe_unserialize($_caps)));
             }
         }
 
