@@ -302,7 +302,7 @@ class Post extends Model {
             $text = str_replace(']]>', ']]&gt;', $text);
             $text = strip_tags($text);
             $excerpt_length = apply_filters('excerpt_length', 55);
-            $excerpt_more = apply_filters('excerpt_more', ' ' . '[...]');
+            $excerpt_more = apply_filters('excerpt_more', ' ' . '[...]', $this);
             $words = preg_split("/[\n\r\t ]+/", $text, $excerpt_length + 1, PREG_SPLIT_NO_EMPTY);
             if ( count($words) > $excerpt_length ) {
                 array_pop($words);
