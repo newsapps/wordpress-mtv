@@ -145,7 +145,9 @@ class Post extends Model {
     public function fetch() {
         if ( empty($this->attributes['blogid']) || empty($this->attributes['id']) )
             throw new BadMethodCallException(__("Need a blogid and post id to fetch a post", 'mtv'));
-        switch_to_blog( $this->attributes['blogid'] );
+        if ( is_multisite() AND get_current_blog_id() !== $this->blogid ) {
+          switch_to_blog( $this->attributes['blogid'] );
+        }
         $post = get_post( $this->attributes['id'] );
         if ( $post === NULL ) {
             restore_current_blog();
@@ -153,7 +155,9 @@ class Post extends Model {
         }
         $this->reload( $post );
 
-        restore_current_blog();
+        if ( is_multisite() ) {
+          restore_current_blog();
+        }
     }
 
     public function parse( &$postdata ) {
