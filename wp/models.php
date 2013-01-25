@@ -754,7 +754,7 @@ class SiteCollection extends Collection {
         global $wpdb;
 
         $class = get_called_class();
-        $query = "select * from wp_blogs where public='1' and archived='0' and spam='0' and deleted='0' and mature='0'";
+        $query = "select * from {$wpdb->base_prefix}blogs where public='1' and archived='0' and spam='0' and deleted='0' and mature='0'";
         return new $class($wpdb->get_results($query, ARRAY_A));
     }
 }
