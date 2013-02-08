@@ -540,7 +540,7 @@ class User extends Model {
         // Set value for each user meta key not in userdata
         foreach ( $usermeta as $k => $v ) {
             if ( !in_array($k, array_keys($userdata)) )
-                $userdata[$k] = $v;
+                $userdata[$k] = maybe_unserialize($v);
         }
 
         $this->reload( $userdata );
