@@ -64,6 +64,7 @@ function urlresolver( $kwargs ) {
 function resolve($url, $url_patterns) {
     // collapse multidimensional $url_patterns
     $url_patterns = collapse_urls($url_patterns);
+    $last_http_exception = False;
     // cycle through our patterns in order to find a view to execute
     foreach ($url_patterns as $pattern => $view) {
         if ( preg_match($pattern, $url, $matches) > 0 ) {
@@ -74,9 +75,16 @@ function resolve($url, $url_patterns) {
                 sprintf(__("Can't find view function: %s", 'mtv'), $view));
 
             // pass the match array to the view function
-            call_user_func( $view, array_slice($matches, 1) );
-            return true; // We're all done, so return
+            try {
+                call_user_func( $view, array_slice($matches, 1) );
+                return true; // We're all done, so return
+            } catch (HttpException $e) {
+                $last_http_exception = $e;
+            }
         }
+    }
+    if ( $last_http_exception ) {
+        throw ( $last_http_exception );
     }
     return false;
 }
