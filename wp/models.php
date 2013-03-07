@@ -402,6 +402,11 @@ class Attachment extends Post {
         return $srcArr[0];
     }
 
+    public function get_size_img($size, $attr=array()) {
+        $size = apply_filters( 'post_thumbnail_size', $size );
+        return wp_get_attachment_image( $this->id, $size, false, $attr );
+    }
+
 }
 
 class AttachmentCollection extends PostCollection {
