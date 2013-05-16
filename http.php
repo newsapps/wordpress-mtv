@@ -79,7 +79,7 @@ function resolve($url, $url_patterns) {
                 call_user_func( $view, array_slice($matches, 1) );
                 return true; // We're all done, so return
             } catch (HttpException $e) {
-                if ($e->getCode() == 301) {
+                if ( in_array($e->getCode(), array(301, 403)) ) {
                     throw ($e);
                 }
                 $last_http_exception = $e;
