@@ -124,7 +124,7 @@ class Model {
     /**
      * Process the raw data from permanent storage
      **/
-    public function parse( &$data ) {
+    public function parse( $data ) {
         // Make sure we have an array and not an object
         if ( is_object($data) )
             return (array) $data;
@@ -135,9 +135,9 @@ class Model {
     /**
      * Update this model with data from permanent storage
      **/
-    public function reload( &$data ) {
+    public function reload( $data ) {
         // Parse raw data from the DB
-        $tmp =& $this->parse($data);
+        $tmp = $this->parse($data);
 
         // Reset any change tracking
         $this->_previous_attributes = array();
