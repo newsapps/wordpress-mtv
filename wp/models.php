@@ -111,7 +111,7 @@ class Post extends Model {
             unset($data['id']);
         }
 
-        switch_to_blog( $blogid );
+        if ( is_multisite() ) switch_to_blog( $blogid );
 
         $postid = wp_insert_post( $data, true );
 
@@ -131,7 +131,7 @@ class Post extends Model {
                 throw new WPException( $result );
         }
 
-        restore_current_blog();
+        if ( is_multisite() ) restore_current_blog();
 
         $this->id = $postid;
 
@@ -150,7 +150,7 @@ class Post extends Model {
         }
         $post = get_post( $this->attributes['id'] );
         if ( $post === NULL ) {
-            restore_current_blog();
+            if ( is_multisite() ) restore_current_blog();
             throw new ModelNotFound("Post", __("Post not found", 'mtv'));
         }
         $this->reload( $post );
