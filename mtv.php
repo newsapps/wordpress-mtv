@@ -61,10 +61,9 @@ function load( $apps ) {
     foreach ( $apps as $name ) {
         $app = $registered_apps[$name];
 
-        if ( $app['views'] ) include_once $app['views'];
-        if ( $app['models'] ) include_once $app['models'];
-
-        if ( $app['templates'] ) array_push($template_dirs, $app['templates']);
+        if ( array_key_exists('views', $app) && $app['views'] ) include_once $app['views'];
+        if ( array_key_exists('models', $app) && $app['models'] ) include_once $app['models'];
+        if ( array_key_exists('templates', $app) && $app['templates'] ) array_push($template_dirs, $app['templates']);
     }
 
     # Time to initialize our template engine
@@ -94,9 +93,9 @@ function load( $apps ) {
     # now that we have a template engine, load some goodies
     foreach ( $apps as $name ) {
         $app = $registered_apps[$name];
-        if ( $app['tags'] ) include_once $app['tags'];
-        if ( $app['functions'] ) include_once $app['functions'];
-        if ( $app['filters'] ) include_once $app['filters'];
+        if ( array_key_exists('tags', $app) && $app['tags'] ) include_once $app['tags'];
+        if ( array_key_exists('functions', $app) && $app['functions'] ) include_once $app['functions'];
+        if ( array_key_exists('filters', $app) && $app['filters'] ) include_once $app['filters'];
     }
 
 }
