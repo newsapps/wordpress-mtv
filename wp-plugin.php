@@ -87,16 +87,32 @@ add_filter( 'query_vars', function( $vars ) {
 } );
 
 add_action( 'init', function() {
-
     load_plugin_textdomain('mtv', false, basename(__DIR__) . '/locale/');
 
     /**
+     * If we're doing ajax, load MTV here in the init callback so
+     * that it will be available throughout the request
+     **/
+    if ( is_admin() && defined('DOING_AJAX') && DOING_AJAX == true ) {
+        if ( !empty( $GLOBALS['apps'] ) )
+            mtv\load( $GLOBALS['apps'] );
+    }
+
+    /**
      * Is our chosen theme an MTV theme?
-     * If not, we don't want to hijack rewrite rules and template selection
+	 * Here we check to see if there is a urls.php file in the theme, then
+	 * we load the full MTV stack. If not, we don't want to hijack rewrite
+	 * rules and template selection.
      **/
     if ( ! file_exists( get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) &&
-         ! file_exists( get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) )
-        return; // nope
+         ! file_exists( get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) ) {
+		// if we're not loading the full stack, just load the basics, if we
+		// have apps defined
+		if ( !is_admin() && !empty( $GLOBALS['apps'] )  )
+			mtv\load($GLOBALS['apps']);
+
+		return;
+	 }
 
     /**
      * *_rewrite_rules
@@ -184,13 +200,5 @@ add_action( 'init', function() {
         }
     });
 
-    /**
-     * If we're doing ajax, load MTV here in the init callback so
-     * that it will be available throughout the request
-     **/
-    if ( is_admin() && defined('DOING_AJAX') && DOING_AJAX == true ) {
-        if ( !empty( $GLOBALS['apps'] ) )
-            mtv\load( $GLOBALS['apps'] );
-    }
 
 }, 999);
