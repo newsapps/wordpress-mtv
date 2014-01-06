@@ -531,7 +531,11 @@ class User extends Model {
     public function fetch() {
         // Get userdata (this is a WP_User object in WP 3.3+)
         $user = get_userdata( $this->id );
-        $userdata = (array) $user->data;
+		if ($user->data) {
+			$userdata = (array) $user->data;
+		} else {
+			$userdata = (array) $user;
+		}
 
         // Fetch all user meta, flatten the returned array
         $usermeta = array_map(
@@ -598,7 +602,7 @@ class User extends Model {
 
         $creds['user_password'] = $kwargs['user_pass'];
 
-        $result = wp_signon($creds, true);
+		$result = wp_signon($creds, true);
 
         if ( is_wp_error($result) ) {
             throw new WPException($result);
