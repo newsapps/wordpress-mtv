@@ -114,6 +114,16 @@ add_action( 'init', function() {
 		return;
 	 }
 
+}, 999);
+
+
+/*
+ * If we have urls.php files in our theme, then we have an mtv theme, so we 
+ * hijack urls and templates
+ */
+if ( file_exists( get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) &&
+	file_exists( get_template_directory() . DIRECTORY_SEPARATOR . 'urls.php' ) ) {
+
     /**
      * *_rewrite_rules
      * Extra "permastruct" rules are run through this filter. Extra "permastruct" rules are added
@@ -124,9 +134,9 @@ add_action( 'init', function() {
      * Anyway, it messes up our generate_rewrite_rules hook, so we have to prevent that stuff from
      * getting added to $wp_rewrite->extra_rules_top
      **/
-    global $wp_rewrite;
-    foreach ( array_keys( $wp_rewrite->extra_permastructs ) as $permastructname )
-        add_filter( $permastructname . '_rewrite_rules', function() { return array(); } );
+	add_filter( 'category_rewrite_rules', function() { return array(); } );
+	add_filter( 'post_tag_rewrite_rules', function() { return array(); } );
+	add_filter( 'post_format_rewrite_rules', function() { return array(); } );
 
     /**
      * generate_rewrite_rules
@@ -137,6 +147,7 @@ add_action( 'init', function() {
      * P.S. $wp_rewrite is a object, so gets passed in by reference
      **/
     add_action( 'generate_rewrite_rules', function( $wp_rewrite ) {
+		var_log('hijack rules');
         # setup our hijack rules
         $mtv_rules = array();
         $mtv_rules['$'] = 'index.php?path'; // Fix WP 3.3 home rewrite rule
@@ -199,6 +210,4 @@ add_action( 'init', function() {
             exit;
         }
     });
-
-
-}, 999);
+}
