@@ -147,7 +147,6 @@ if ( file_exists( get_stylesheet_directory() . DIRECTORY_SEPARATOR . 'urls.php' 
      * P.S. $wp_rewrite is a object, so gets passed in by reference
      **/
     add_action( 'generate_rewrite_rules', function( $wp_rewrite ) {
-		var_log('hijack rules');
         # setup our hijack rules
         $mtv_rules = array();
         $mtv_rules['$'] = 'index.php?path'; // Fix WP 3.3 home rewrite rule
