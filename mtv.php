@@ -2,7 +2,7 @@
 
 namespace mtv;
 
-require 'Twig/Autoloader.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 use Twig_Autoloader,
     Twig_Environment,

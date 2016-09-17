@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This script load WordPress for use in cli
+ * This script loads WordPress for use in cli
  */
 
 if ( !defined('STDIN') ) 
