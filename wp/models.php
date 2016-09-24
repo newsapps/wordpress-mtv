@@ -111,7 +111,7 @@ class Post extends Model {
             unset($data['id']);
         }
 
-        switch_to_blog( $blogid );
+        if ( is_multisite() ) switch_to_blog( $blogid );
 
         $postid = wp_insert_post( $data, true );
 
@@ -131,7 +131,7 @@ class Post extends Model {
                 throw new WPException( $result );
         }
 
-        restore_current_blog();
+        if ( is_multisite() ) restore_current_blog();
 
         $this->id = $postid;
 
@@ -143,7 +143,7 @@ class Post extends Model {
     }
 
     public function fetch() {
-        if ( empty($this->attributes['blogid']) || empty($this->attributes['id']) )
+        if ( is_multisite() && (empty($this->attributes['blogid']) || empty($this->attributes['id'])) )
             throw new BadMethodCallException(__("Need a blogid and post id to fetch a post", 'mtv'));
 
         if ( is_multisite() && get_current_blog_id() !== $this->blogid )
@@ -151,7 +151,7 @@ class Post extends Model {
 
         $post = get_post( $this->attributes['id'] );
         if ( $post === NULL ) {
-            restore_current_blog();
+            if ( is_multisite() ) restore_current_blog();
             throw new ModelNotFound("Post", __("Post not found", 'mtv'));
         }
         $this->reload( $post );
@@ -166,8 +166,7 @@ class Post extends Model {
 
         # gonna pick a case
         if ( !empty($ret['ID']) ) {
-            $ret['id'] =& $ret['ID'];
-            unset($ret['ID']);
+            $ret['id'] = $ret['ID'];
         }
 
         # Take only the fields we need, put them in a temp array
@@ -177,10 +176,13 @@ class Post extends Model {
         # Fill up the meta attribute with post meta
         $ret['post_meta'] = array();
         $meta_keys = get_post_custom_keys($ret['id']);
-        if ( is_array( $meta_keys ) )
-            foreach( $meta_keys as $key )
-                $ret['post_meta'][$key] = get_post_meta($ret['id'], $key, true);
 
+        if ( is_array( $meta_keys ) )
+            foreach( $meta_keys as $key ) {
+                if (get_post_meta($ret['id'], $key, true)) {
+                    $ret['post_meta'][$key] = get_post_meta($ret['id'], $key, true);
+                } 
+            }
         if ( $ret['post_type'] == 'post' )
             $ret['post_format'] = get_post_format( $ret['id'] );
 
@@ -396,6 +398,17 @@ class Attachment extends Post {
         return $ret;
     }
 
+    public function get_size_url($size) {
+        $size = apply_filters( 'post_thumbnail_size', $size );
+        $srcArr = wp_get_attachment_image_src( $this->id, $size );
+        return $srcArr[0];
+    }
+
+    public function get_size_img($size, $attr=array()) {
+        $size = apply_filters( 'post_thumbnail_size', $size );
+        return wp_get_attachment_image( $this->id, $size, false, $attr );
+    }
+
 }
 
 class AttachmentCollection extends PostCollection {
@@ -564,19 +577,21 @@ class User extends Model {
         $ret['avatar'] = get_avatar( $ret['id'] );
 
         // Get user capabilities for each blog in the network
-        global $wpdb;
-        $blogs = $wpdb->get_col("select blog_id from $wpdb->blogs");
+        if (is_multisite()) {
+            global $wpdb;
+            $blogs = $wpdb->get_col("select blog_id from $wpdb->blogs");
 
-        $ret['capabilities'] = array();
-        foreach ( $blogs as $k => $v ) {
-            if ( $k == 0 ) {
-                $_caps = get_user_meta($ret['id'], 'wp_capabilities', true);
-                if ( !empty($_caps) )
-                    $ret['capabilities'][$v] = array_shift(array_keys((array) maybe_unserialize($_caps)));
-            } else {
-                $_caps = get_user_meta($ret['id'], 'wp_' . $v . '_capabilities', true );
-                if ( !empty($_caps) )
-                    $ret['capabilities'][$v] = array_shift(array_keys((array) maybe_unserialize($_caps)));
+            $ret['capabilities'] = array();
+            foreach ( $blogs as $k => $v ) {
+                if ( $k == 0 ) {
+                    $_caps = get_user_meta($ret['id'], 'wp_capabilities', true);
+                    if ( !empty($_caps) )
+                        $ret['capabilities'][$v] = array_shift(array_keys((array) maybe_unserialize($_caps)));
+                } else {
+                    $_caps = get_user_meta($ret['id'], 'wp_' . $v . '_capabilities', true );
+                    if ( !empty($_caps) )
+                        $ret['capabilities'][$v] = array_shift(array_keys((array) maybe_unserialize($_caps)));
+                }
             }
         }
 

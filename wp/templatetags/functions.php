@@ -58,6 +58,9 @@ $twig->addFunction('wpautop', new Twig_Function_Function('wpautop'));
 $twig->addFunction('get_comments', new Twig_Function_Function('get_comments'));
 $twig->addFunction('mysql2date', new Twig_Function_Function('mysql2date'));
 
+// Category functions
+$twig->addFunction('get_category_link', new Twig_Function_Function('get_category_link'));
+
 // Comment form
 $twig->addFunction('get_comment_reply_link', new Twig_Function_Function('get_comment_reply_link'));
 $twig->addFunction('comment_author', new Twig_Function_Function('comment_author'));
