@@ -1,5 +1,5 @@
 =========================================
-Models, templates and views for WordPress
+Models, Templates and Views for WordPress
 =========================================
 
 MTV is a plugin for WordPress that provides a new API for developing plugins and themes. Born out of frustration with the undocumented, inconsistent WordPress API, MTV provides a simple, familiar, consistent way to develop heavily customized WordPress sites.
